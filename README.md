@@ -43,8 +43,10 @@ Events/Erlebnisse und Bergbahn-/Reise-Deals haben einen **Ort** im Titel
 400 km) plus je Karte einen **🚗 Route-Link** (Google-Maps-Navigation) ein.
 
 - Startort als `PLZ Ort` (`50667 Köln`), nur `Ort` oder `lat,lon`.
-- Orte kommen aus einer eingebauten Städte-Tabelle (DE/AT/CH inkl. Bergbahnen);
-  unbekannte dt. PLZ nutzen einen groben Regions-Fallback. Kein Netz/API nötig.
+- Orte kommen aus einer eingebauten Tabelle (230 Einträge: DE/AT/CH-Städte,
+  Bergbahnen sowie Ferien-Regionen wie Tirol, Allgäu, Salzburger Land, Schwarzwald
+  – viele Hotel-/Reise-Deals nennen die Region statt der Stadt); unbekannte dt.
+  PLZ nutzen einen groben Regions-Fallback. Kein Netz/API nötig.
 - Versandfähige Feinkost-Shop-Produkte bekommen bewusst **keine** Entfernung.
 
 Keine Abhängigkeiten – **reine Python-Standardbibliothek** (Python 3.9+).

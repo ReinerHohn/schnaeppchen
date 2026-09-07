@@ -136,6 +136,27 @@ _RAW_PLACES = [
     ("Laax", 46.809, 9.258), ("Crans-Montana", 46.308, 7.481),
     ("Adelboden", 46.494, 7.559), ("Lenzerheide", 46.729, 9.558),
     ("Klosters", 46.869, 9.879), ("Leukerbad", 46.379, 7.627),
+    # Regionen & Ferien-Gebiete (viele Hotel-/Reise-Deals nennen die Region,
+    # nicht die Stadt). Grobe Mittelpunkte – für einen Radius-Filter ausreichend.
+    ("Schwarzwald", 48.100, 8.200), ("Allgäu", 47.600, 10.300),
+    ("Bodensee", 47.600, 9.300), ("Bayerischer Wald", 48.900, 13.200),
+    ("Niederbayern", 48.700, 12.900), ("Oberbayern", 47.900, 11.600),
+    ("Chiemsee", 47.870, 12.470), ("Zugspitze", 47.420, 10.980),
+    ("Sauerland", 51.200, 8.300), ("Harz", 51.750, 10.600),
+    ("Ostsee", 54.100, 11.500), ("Mosel", 49.900, 7.000),
+    ("Rheingau", 50.000, 8.000), ("Eifel", 50.300, 6.700),
+    ("Spreewald", 51.870, 13.980),
+    # Österreich – Regionen
+    ("Tirol", 47.250, 11.400), ("Salzburger Land", 47.500, 13.100),
+    ("Salzkammergut", 47.700, 13.600), ("Steiermark", 47.200, 15.300),
+    ("Kärnten", 46.700, 14.000), ("Vorarlberg", 47.250, 9.900),
+    ("Bregenzerwald", 47.400, 9.900), ("Wachau", 48.360, 15.400),
+    ("Zillertal", 47.200, 11.870), ("Ötztal", 47.100, 10.900),
+    ("Hochkönig", 47.420, 13.060), ("Kitzbüheler Alpen", 47.446, 12.392),
+    # Schweiz – Regionen
+    ("Engadin", 46.500, 9.900), ("Tessin", 46.300, 8.800),
+    ("Wallis", 46.200, 7.500), ("Graubünden", 46.700, 9.500),
+    ("Berner Oberland", 46.600, 7.900), ("Jungfrau Region", 46.600, 7.960),
 ]
 PLACES = {normalize(name): (name, lat, lon) for name, lat, lon in _RAW_PLACES}
 
