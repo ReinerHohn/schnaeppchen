@@ -1,0 +1,52 @@
+{
+  "_comment": "Deine Interessen: Genuss-Zugfahrten, günstiges Sterne-Essen, Schlager-Tickets, Touri-Erlebnisse, Delikatessen (Hummer/Königskrabbe/Käsefondue). Das Tool hebt echte Schnäppchen (viel billiger als üblich) und Wochentags-Schnäppchen (Mo-Fr deutlich billiger) hervor.",
+  "interests": [
+    {
+      "name": "Genuss-Zugfahrten",
+      "keywords": ["glacier", "bernina", "panorama", "gourmetzug", "zugfahrt", "bahn", "dinnerzug"],
+      "category": "Genuss-Bahn",
+      "max_price": 400,
+      "min_discount_pct": 15,
+      "weight": 1.5
+    },
+    {
+      "name": "Sterne & Gourmet günstig",
+      "keywords": ["sterne", "menü", "tasting", "chef", "gourmet", "fine dining", "gault"],
+      "category": "Fine Dining",
+      "max_price": 250,
+      "min_discount_pct": 20,
+      "weight": 1.6
+    },
+    {
+      "name": "Schlager-Konzerte",
+      "keywords": ["schlager", "open air", "konzert", "ticket", "helene", "fischer", "tribute"],
+      "category": "Konzert",
+      "max_price": 120,
+      "min_discount_pct": 15,
+      "weight": 1.3
+    },
+    {
+      "name": "Delikatessen (Hummer/Krabbe/Fondue)",
+      "keywords": ["hummer", "königskrabbe", "krabbe", "austern", "käsefondue", "fondue", "seafood"],
+      "category": "Delikatessen",
+      "max_price": 150,
+      "min_discount_pct": 15,
+      "weight": 1.4
+    },
+    {
+      "name": "Touri-Erlebnisse extrem billig",
+      "keywords": ["therme", "bootstour", "städtetrip", "erlebnis", "tour", "seilbahn", "eintritt"],
+      "category": "Erlebnis",
+      "max_price": 100,
+      "min_discount_pct": 20,
+      "weight": 1.2
+    }
+  ],
+  "settings": {
+    "currency": "€",
+    "history_days": 90,
+    "min_deal_score": 0.25,
+    "weekday_flag_pct": 8.0,
+    "top_n": 25
+  }
+}
