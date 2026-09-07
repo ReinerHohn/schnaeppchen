@@ -222,12 +222,23 @@
                   "gambas", "hummer", "kaviar", "langusten", "caviar", "pata-negra"],
         "exclude": ["at-home", "@home", "dry-aging", "/fleisch/", "rezept",
                     "zubehoer", "gutschein", "box/"]
+      },
+      {
+        "name": "gute-weine",
+        "sitemap": "https://www.gute-weine.de/sitemap.xml",
+        "currency": "€",
+        "category": "Wein",
+        "max_products": 50,
+        "require": "/produkt/",
+        "match": ["champagne", "champagner", "grand-cru", "magnum", "barolo",
+                  "brunello", "chateauneuf", "sauternes", "pomerol", "saint-emilion",
+                  "montrachet", "premier-cru", "amarone", "sassicaia"]
       }
     ],
     "feeds": [
-      "restaurant", "wein", "kochen", "getraenke", "lebensmittel",
+      "restaurant", "wein", "kochen", "getraenke", "lebensmittel", "kaffee",
       "reisen", "urlaub", "hotel", "fluege",
-      "konzerte", "musical", "pj_reisen", "pj_urlaub",
+      "konzerte", "musical", "pj_hot", "pj_reisen", "pj_urlaub",
       "preispirat_ch", "urlaubspiraten", "reisetiger", "traveldealz"
     ],
     "searches": [

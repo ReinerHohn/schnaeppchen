@@ -67,7 +67,10 @@ Drei Arten von Quellen:
   nach der Zahl (`47,70 EUR`, `€ 26,97`) und Sitemap-Indizes (inkl. `.gz`).
   Mit dabei: **gourmetfleisch.de** (Shopware), **viani.de**, **bosfood.de** (JTL,
   Kaviar/Trüffel), **gustini.de** & **eataly.net** (ital. Delikatessen),
-  **otto-gourmet.de** (Wagyu/Kobe/Dry-Aged/Kaviar). Weitere
+  **otto-gourmet.de** (Wagyu/Kobe/Dry-Aged/Kaviar), **gute-weine.de** (Premium-
+  Weine/Champagner, `require:"/produkt/"`). Sitemap-Indizes werden am
+  `<sitemapindex>`-Wurzelelement erkannt (auch Sub-Sitemaps ohne `.xml`-Endung).
+  Weitere
   Shops per Eintrag `{name, sitemap, currency, encoding, match, exclude, require,
   kind, category}` – kein Code nötig:
   - `match` — URL muss einen dieser Substrings enthalten (Delikatessen-Filter).

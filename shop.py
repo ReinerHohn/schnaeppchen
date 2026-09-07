@@ -124,7 +124,7 @@ def parse_sitemap(xml, match=None, exclude=None, require=None):
              Fehlpreis durchrutschen.
     """
     match = match or DEFAULT_MATCH
-    urls = re.findall(r"<loc>\s*([^<]+?)\s*</loc>", xml)
+    urls = [html.unescape(u) for u in re.findall(r"<loc>\s*([^<]+?)\s*</loc>", xml)]
     rx = re.compile("|".join(re.escape(m) for m in match), re.I)
     ex = re.compile("|".join(re.escape(x) for x in exclude), re.I) if exclude else None
     req = [require] if isinstance(require, str) else require  # str oder Liste (any-of)
@@ -149,10 +149,18 @@ def _fetch(url, timeout, encoding=None):
 
 
 def _sitemap_urls(sitemap_url, timeout):
-    """Sitemap holen; ist es ein Index, eine Ebene in die Sub-Sitemaps absteigen."""
+    """Sitemap holen; ist es ein Index, eine Ebene in die Sub-Sitemaps absteigen.
+
+    Erkennt einen Index am <sitemapindex>-Wurzelelement (dann sind ALLE <loc>
+    Sub-Sitemaps – auch ohne .xml-Endung, z.B. '...sitemap.xml?sitemap=products'),
+    sonst am .xml/.xml.gz-Suffix. HTML-Entities in URLs werden aufgelöst.
+    """
     xml = _fetch(sitemap_url, timeout)
-    locs = re.findall(r"<loc>\s*([^<]+?)\s*</loc>", xml)
-    subs = [l for l in locs if l.endswith((".xml", ".xml.gz"))]
+    locs = [html.unescape(l) for l in re.findall(r"<loc>\s*([^<]+?)\s*</loc>", xml)]
+    if "<sitemapindex" in xml.lower():
+        subs = locs
+    else:
+        subs = [l for l in locs if l.endswith((".xml", ".xml.gz"))]
     if subs:
         parts = [xml]
         for s in subs[:25]:
