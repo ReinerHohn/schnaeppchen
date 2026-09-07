@@ -8,6 +8,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from analyze import (  # noqa: E402
     analyze_all,
     discount_pct,
+    keyword_matches,
     match_interest,
     median,
     normalize,
@@ -45,6 +46,16 @@ class TestNormalizeMatch(unittest.TestCase):
         a = {"brand": "Sony", "title": "WH-1000XM5 Kopfhörer"}
         b = {"brand": "sony", "title": "wh 1000xm5   kopfhörer"}
         self.assertEqual(product_key(a), product_key(b))
+
+    def test_keyword_matches_wordstart_not_midword(self):
+        # Komposita treffen (Wortanfang), Mittendrin-Rauschen nicht
+        self.assertTrue(keyword_matches("hummer", "Frische Hummersuppe im Angebot"))
+        self.assertTrue(keyword_matches("krabbe", "Königskrabben-Beine 1kg"))
+        self.assertFalse(keyword_matches("rigi", "DAZN Gamepass im Original"))
+        self.assertFalse(keyword_matches("wels", "Edelweiss Pullover"))
+        # Mehrwort-Begriff als Phrase
+        self.assertTrue(keyword_matches("glacier express", "Ticket Glacier Express Panorama"))
+        self.assertFalse(keyword_matches("glacier express", "Glacier Bier Express Versand"))
 
     def test_match_interest_picks_best(self):
         interests = [

@@ -13,21 +13,38 @@ Reine stdlib.
 """
 from __future__ import annotations
 
+import concurrent.futures as _cf
 import datetime
 import html
 import re
+import urllib.parse
 import urllib.request
 
-# Fertige Feed-Presets (Schlüssel -> URL). Erweiterbar in config.json.
+from analyze import normalize
+
+_MD = "https://www.mydealz.de"
+_PJ = "https://www.preisjaeger.at"
+
+# Fertige Feed-Presets (Schlüssel -> URL). Erweiterbar in config.json / via --feeds.
+# mydealz (DE) und preisjaeger (AT, "pj_") laufen auf derselben Plattform -> selber Parser.
+_MD_GROUPS = ["lebensmittel", "restaurant", "supermarkt", "getraenke", "wein", "kochen",
+              "kaffee", "reisen", "urlaub", "hotel", "fluege", "konzerte", "freizeitpark",
+              "kino", "musical", "elektronik"]
+_PJ_GROUPS = ["supermarkt", "getraenke", "reisen", "urlaub"]
+
 FEEDS = {
-    "hot": "https://www.mydealz.de/rss/hot",
-    "new": "https://www.mydealz.de/rss/new",
-    "trending": "https://www.mydealz.de/rss/trending",
-    "reisen": "https://www.mydealz.de/rss/gruppe/reisen",
-    "urlaub": "https://www.mydealz.de/rss/gruppe/urlaub",
-    "lebensmittel": "https://www.mydealz.de/rss/gruppe/lebensmittel",
-    "konzerte": "https://www.mydealz.de/rss/gruppe/konzerte",
+    "hot": f"{_MD}/rss/hot",
+    "new": f"{_MD}/rss/new",
+    "trending": f"{_MD}/rss/trending",
+    "pj_hot": f"{_PJ}/rss/hot",
+    "pj_new": f"{_PJ}/rss/new",
 }
+FEEDS.update({g: f"{_MD}/rss/gruppe/{g}" for g in _MD_GROUPS})
+FEEDS.update({f"pj_{g}": f"{_PJ}/rss/gruppe/{g}" for g in _PJ_GROUPS})
+
+# Suche aktiv nach diesen Begriffen (mydealz-Volltextsuche, HTML). Für Nischen
+# wie Hummer/Königskrabbe, die selten in den Standard-Feeds auftauchen.
+_SEARCH_URL = _MD + "/search?q={}"
 
 _UA = {"User-Agent": "Mozilla/5.0 (SchnaeppchenJaeger/1.0)"}
 
@@ -153,27 +170,94 @@ def _fetch(url, timeout):
         return resp.read().decode("utf-8", "replace")
 
 
-def fetch_offers(feeds=None, timeout=15, today=None):
-    """Mehrere Feeds holen, parsen, nach URL deduplizieren.
+def parse_search(html_doc, query, base=_MD, today=None):
+    """Deals aus einer mydealz/preisjaeger-Suchergebnisseite (HTML) ziehen.
 
-    feeds: Liste von Preset-Schlüsseln (siehe FEEDS) oder vollen URLs.
-    Rückgabe: (offers, meta) — meta zählt Erfolg/Fehler je Feed.
+    Titel-Anker liefern Titel + Link; Preis/Rabatt stecken im Titeltext
+    ('... für 3,17€ statt 19,95€'). Nur Treffer, die den Suchbegriff wirklich
+    enthalten (gegen Fuzzy-Rauschen wie hummer->hummel).
+    """
+    if today is None:
+        today = datetime.date.today()
+    q = normalize(query).replace(" ", "")
+    offers = []
+    anchors = re.findall(
+        r'class="thread-title[^"]*"[^>]*>\s*<a[^>]+href="([^"]+)"[^>]*>(.*?)</a>',
+        html_doc, re.S,
+    )
+    for href, raw in anchors:
+        title = html.unescape(re.sub("<[^>]+>", "", raw)).strip()
+        if q and q not in normalize(title).replace(" ", ""):
+            continue  # Fuzzy-Rauschen raus
+        link = href if href.startswith("http") else base + href
+        original, pct = parse_discount(title)
+        offers.append(
+            {
+                "title": title,
+                "brand": "",
+                "category": "",
+                "price": _euro(title),
+                "currency": "€",
+                "url": link,
+                "source": "mydealz-suche",
+                "group": f"suche:{query}",
+                "temperature": None,
+                "original_price": original,
+                "discount_pct": pct,
+                "image": None,
+                "blurb": "",
+                "observed_at": today.isoformat(),
+            }
+        )
+    return offers
+
+
+def _fetch_feed_job(f, timeout, today):
+    url = FEEDS.get(f, f)
+    label = f if f in FEEDS else "custom"
+    try:
+        xml = _fetch(url, timeout)
+    except Exception as exc:  # noqa: BLE001 - ein Feed darf ausfallen
+        return ("feed", f, None, str(exc))
+    return ("feed", f, parse_feed(xml, group=label, today=today), None)
+
+
+def _search_job(query, timeout, today):
+    try:
+        doc = _fetch(_SEARCH_URL.format(urllib.parse.quote(query)), timeout)
+    except Exception as exc:  # noqa: BLE001
+        return ("search", query, None, str(exc))
+    return ("search", query, parse_search(doc, query, today=today), None)
+
+
+def collect(feeds=None, searches=None, timeout=15, today=None, workers=10):
+    """Feeds + aktive Suchen parallel holen, parsen, nach URL deduplizieren.
+
+    feeds:    Preset-Schlüssel (siehe FEEDS) oder volle URLs.
+    searches: Suchbegriffe für die mydealz-Volltextsuche (z.B. 'hummer').
+    Rückgabe: (offers, meta) — meta zählt Treffer/Fehler je Quelle.
     """
     if feeds is None:
-        feeds = ["hot", "new", "reisen", "urlaub", "lebensmittel", "konzerte"]
-    seen = {}
-    meta = {"ok": [], "failed": []}
-    for f in feeds:
-        url = FEEDS.get(f, f)
-        label = f if f in FEEDS else "custom"
-        try:
-            xml = _fetch(url, timeout)
-        except Exception as exc:  # noqa: BLE001 - tolerant, ein Feed darf ausfallen
-            meta["failed"].append((f, str(exc)))
-            continue
-        got = parse_feed(xml, group=label, today=today)
-        for o in got:
-            if o["url"] and o["url"] not in seen:
-                seen[o["url"]] = o
-        meta["ok"].append((f, len(got)))
+        feeds = ["hot", "new", "lebensmittel", "reisen", "urlaub", "konzerte"]
+    searches = searches or []
+    jobs = [(_fetch_feed_job, f) for f in feeds] + [(_search_job, s) for s in searches]
+
+    seen, meta = {}, {"ok": [], "failed": []}
+    with _cf.ThreadPoolExecutor(max_workers=workers) as ex:
+        futures = [ex.submit(fn, arg, timeout, today) for fn, arg in jobs]
+        for fut in _cf.as_completed(futures):
+            kind, name, got, err = fut.result()
+            tag = name if kind == "feed" else f"🔎{name}"
+            if err is not None:
+                meta["failed"].append((tag, err))
+                continue
+            for o in got:
+                if o["url"] and o["url"] not in seen:
+                    seen[o["url"]] = o
+            meta["ok"].append((tag, len(got)))
     return list(seen.values()), meta
+
+
+def fetch_offers(feeds=None, timeout=15, today=None):
+    """Rückwärtskompatibel: nur Feeds (ohne aktive Suche)."""
+    return collect(feeds=feeds, searches=None, timeout=timeout, today=today)

@@ -42,6 +42,24 @@ def product_key(offer):
     return normalize(f"{offer.get('brand', '')} {offer.get('title', '')}")
 
 
+def keyword_matches(keyword, text):
+    """Robuster Keyword-Treffer.
+
+    * Mehrwort-Begriffe ('glacier express'): als Phrase (Teilstring) prüfen.
+    * Lange Einzelwörter (>=5, 'krabbe', 'hummer'): Teilstring — fängt deutsche
+      Komposita ('krabbe' in 'Königskrabben', 'hummer' in 'Hummersuppe').
+    * Kurze Einzelwörter (<5, 'rigi', 'wels'): nur am WORTANFANG, sonst gäbe es
+      Mittendrin-Rauschen ('rigi' in 'Original', 'wels' in 'Edelweiss').
+    """
+    k = normalize(keyword)
+    if not k:
+        return False
+    hay = normalize(text)
+    if " " in k or len(k) >= 5:
+        return k in hay
+    return re.search(r"(?:^| )" + re.escape(k), hay) is not None
+
+
 # --------------------------------------------------------------------------- #
 # Preis-Kennzahlen
 # --------------------------------------------------------------------------- #
@@ -91,10 +109,10 @@ def match_interest(offer, interests):
     Match über Keyword-Treffer im (normalisierten) Titel/Kategorie/Marke.
     Rückgabe: (interest|None, matched_keywords, hits).
     """
-    hay = normalize(f"{offer.get('title','')} {offer.get('brand','')} {offer.get('category','')}")
+    text = f"{offer.get('title','')} {offer.get('brand','')} {offer.get('category','')}"
     best = (None, [], 0)
     for it in interests:
-        matched = [kw for kw in it.get("keywords", []) if normalize(kw) in hay]
+        matched = [kw for kw in it.get("keywords", []) if keyword_matches(kw, text)]
         # Kategorie zählt als zusätzlicher Treffer
         if it.get("category") and normalize(it["category"]) == normalize(offer.get("category", "")):
             hits = len(matched) + 1

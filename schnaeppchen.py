@@ -33,15 +33,15 @@ def load_config(path):
         return json.load(fh)
 
 
-def get_offers(source, feeds, settings):
+def get_offers(source, feeds, searches, settings):
     """(offers, history, meta) für die gewählte Quelle liefern."""
     if source == "demo":
         from sources import demo_source
         offers, history = demo_source(days=settings.get("history_days", 90))
         return offers, history, {"ok": [("demo", len(offers))], "failed": []}
 
-    from mydealz import fetch_offers
-    offers, meta = fetch_offers(feeds=feeds)
+    from mydealz import collect
+    offers, meta = collect(feeds=feeds, searches=searches)
     if not offers:  # Netzproblem -> sauberer Fallback auf Demo
         print("[warn] Keine Live-Deals erreichbar – nutze Demo-Daten.")
         from sources import demo_source
@@ -86,6 +86,7 @@ def main(argv=None):
     ap.add_argument("--out", default=os.path.join(here, "dashboard.html"))
     ap.add_argument("--source", choices=["mydealz", "demo"], default=None)
     ap.add_argument("--feeds", default=None, help="Komma-Liste, z.B. hot,lebensmittel,reisen")
+    ap.add_argument("--search", default=None, help="Komma-Liste aktiver Suchbegriffe, z.B. hummer,krabbe")
     ap.add_argument("--json", action="store_true")
     ap.add_argument("--open", action="store_true")
     args = ap.parse_args(argv)
@@ -97,8 +98,9 @@ def main(argv=None):
 
     source = args.source or settings.get("source", "mydealz")
     feeds = args.feeds.split(",") if args.feeds else settings.get("feeds")
+    searches = args.search.split(",") if args.search else settings.get("searches")
 
-    offers, history, meta = get_offers(source, feeds, settings)
+    offers, history, meta = get_offers(source, feeds, searches, settings)
     analyzed = analyze_all(offers, history, interests, settings, sweetspots)
 
     if args.json:

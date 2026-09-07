@@ -3,9 +3,17 @@
   "interests": [
     {
       "name": "Genuss-Zugfahrten",
-      "keywords": ["glacier", "bernina", "panorama", "gourmetzug", "zugfahrt", "bahn", "dinnerzug"],
+      "keywords": ["glacier", "bernina", "panorama", "gourmetzug", "zugfahrt", "dinnerzug", "gotthard"],
       "category": "Genuss-Bahn",
       "max_price": 400,
+      "min_discount_pct": 15,
+      "weight": 1.5
+    },
+    {
+      "name": "Schweizer Bergbahnen",
+      "keywords": ["bergbahn", "seilbahn", "gondel", "jungfraujoch", "pilatus", "titlis", "rigi", "matterhorn", "gornergrat", "schilthorn", "stanserhorn", "säntis", "zermatt", "grindelwald"],
+      "category": "Erlebnis",
+      "max_price": 250,
       "min_discount_pct": 15,
       "weight": 1.5
     },
@@ -40,6 +48,14 @@
       "max_price": 120,
       "min_discount_pct": 10,
       "weight": 1.5
+    },
+    {
+      "name": "Käsefondue & Raclette (auch Sets)",
+      "keywords": ["käsefondue", "fondue", "raclette", "fondue-set", "caquelon", "gruyère", "vacherin", "moitié"],
+      "category": "Delikatessen",
+      "max_price": 150,
+      "min_discount_pct": 15,
+      "weight": 1.3
     },
     {
       "name": "Bruchware & B-Ware",
@@ -101,8 +117,21 @@
     "min_deal_score": 0.25,
     "weekday_flag_pct": 8.0,
     "hot_temp_threshold": 200,
-    "top_n": 60,
+    "top_n": 80,
     "source": "mydealz",
-    "feeds": ["hot", "new", "reisen", "urlaub", "lebensmittel", "konzerte"]
+    "feeds": [
+      "hot", "new",
+      "lebensmittel", "restaurant", "supermarkt", "getraenke", "wein",
+      "reisen", "urlaub", "hotel", "fluege",
+      "konzerte", "freizeitpark", "kino", "musical",
+      "pj_hot", "pj_supermarkt", "pj_reisen", "pj_urlaub"
+    ],
+    "searches": [
+      "hummer", "königskrabbe", "krabbe", "austern", "langusten",
+      "jakobsmuscheln", "garnelen", "kaisergranat",
+      "käsefondue", "raclette", "fondue set",
+      "bergbahn", "seilbahn", "jungfraujoch", "titlis",
+      "glacier express", "bernina express"
+    ]
   }
 }

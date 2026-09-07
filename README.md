@@ -36,19 +36,31 @@ Das Dashboard ist eine einzelne, self-contained `dashboard.html` (Karten-Grid mi
 Bildern, °-Hotness, Filter-Buttons; Chart.js via CDN). Ohne Netz fällt das Tool
 automatisch auf Demo-Daten zurück.
 
-## Datenquelle & Feeds
+## Datenquellen, Feeds & aktive Suche
 
-`config.json → settings.feeds` wählt die mydealz-RSS-Feeds:
+Zwei Baustellen, beide über dieselbe Pepper-Plattform (gleicher Parser):
+**mydealz.de** (DE) und **preisjaeger.at** (AT, Feeds mit `pj_`-Präfix).
 
-| Feed | Inhalt |
-|------|--------|
-| `hot`, `new`, `trending` | globale Top-/frische Deals (mit °-Hotness) |
-| `reisen`, `urlaub` | Reise-/Urlaubs-Schnäppchen (Glacier Express, Trips) |
-| `lebensmittel` | Essen & Delikatessen (Hummer, Krabbe, Fondue) |
-| `konzerte` | Konzert-Tickets (Schlager) |
+**Feeds** (`config.json → settings.feeds`) — Presets in `mydealz.py → FEEDS`:
 
-Weitere mydealz-Gruppen einfach als `gruppe/<slug>`-URL oder Preset ergänzen
-(`mydealz.py → FEEDS`).
+| Bereich | Presets |
+|---------|---------|
+| Global | `hot`, `new`, `trending`, `pj_hot`, `pj_new` |
+| Essen & Trinken | `lebensmittel`, `restaurant`, `supermarkt`, `getraenke`, `wein`, `kochen`, `kaffee`, `pj_supermarkt`, `pj_getraenke` |
+| Reisen | `reisen`, `urlaub`, `hotel`, `fluege`, `pj_reisen`, `pj_urlaub` |
+| Events | `konzerte`, `freizeitpark`, `kino`, `musical` |
+| Sonstiges | `elektronik` |
+
+**Aktive Suche** (`config.json → settings.searches`) — für Nischen, die selten in
+den Standard-Feeds stehen (Hummer, Königskrabbe, Bergbahn, Käsefondue). Das Tool
+ruft die mydealz-Volltextsuche pro Begriff auf, filtert Fuzzy-Rauschen
+(hummer → *nicht* hummel) und zieht Preis/Rabatt aus dem Titel. Alle Feeds und
+Suchen laufen **parallel** (≈2–3 s für ~34 Quellen).
+
+```bash
+python3 schnaeppchen.py --search hummer,königskrabbe,raclette
+python3 schnaeppchen.py --feeds hot,lebensmittel,restaurant,reisen
+```
 
 ## Interessen anpassen
 

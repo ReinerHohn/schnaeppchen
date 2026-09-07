@@ -6,7 +6,9 @@ import unittest
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from analyze import analyze_all  # noqa: E402
-from mydealz import _euro, parse_discount, parse_feed, parse_price_merchant, parse_title  # noqa: E402
+from mydealz import (  # noqa: E402
+    _euro, parse_discount, parse_feed, parse_price_merchant, parse_search, parse_title,
+)
 from sweetspots import match_sweetspots  # noqa: E402
 
 # Statischer RSS-Ausschnitt im mydealz-Format (nachgebaut aus echten Feeds).
@@ -64,6 +66,27 @@ class TestFeed(unittest.TestCase):
         self.assertEqual(krabbe["discount_pct"], 40.0)
         self.assertEqual(krabbe["group"], "lebensmittel")
         self.assertTrue(krabbe["url"].endswith("koenigskrabbe-111"))
+
+
+SEARCH_HTML = """
+<div class="thread-title thread-title--list"><a href="/deals/hummer-frisch-999" class="cept-tt thread-link">
+  Ganzer Hummer 500g für 19,99€ statt 34,99€</a></div>
+<div class="thread-title"><a href="https://www.mydealz.de/deals/hummel-tights-111" class="thread-link">
+  hummel hmlMOVER Tights Damen für 3,17€</a></div>
+"""
+
+
+class TestSearch(unittest.TestCase):
+    def test_parse_search_extracts_and_filters(self):
+        offers = parse_search(SEARCH_HTML, "hummer")
+        # 'hummel' muss rausgefiltert werden (Fuzzy-Rauschen), nur echter Hummer bleibt
+        self.assertEqual(len(offers), 1)
+        o = offers[0]
+        self.assertTrue(o["title"].startswith("Ganzer Hummer"))
+        self.assertEqual(o["price"], 19.99)
+        self.assertEqual(o["original_price"], 34.99)
+        self.assertEqual(o["group"], "suche:hummer")
+        self.assertTrue(o["url"].startswith("https://www.mydealz.de/deals/hummer"))
 
 
 class TestSweetspots(unittest.TestCase):

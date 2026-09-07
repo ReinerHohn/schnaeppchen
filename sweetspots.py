@@ -17,7 +17,7 @@ Begründung fürs Dashboard. Reine stdlib.
 """
 from __future__ import annotations
 
-from analyze import normalize
+from analyze import keyword_matches
 
 # Standard-Heuristiken. In config.json unter "sweetspots" überschreibbar/erweiterbar.
 DEFAULT_SWEETSPOTS = [
@@ -85,12 +85,10 @@ def match_sweetspots(offer, sweetspots=None):
     """
     if sweetspots is None:
         sweetspots = DEFAULT_SWEETSPOTS
-    hay = normalize(
-        " ".join(str(offer.get(k, "")) for k in ("title", "brand", "category", "blurb"))
-    )
+    text = " ".join(str(offer.get(k, "")) for k in ("title", "brand", "category", "blurb"))
     found = []
     for s in sweetspots:
-        matched = [kw for kw in s.get("keywords", []) if normalize(kw) in hay]
+        matched = [kw for kw in s.get("keywords", []) if keyword_matches(kw, text)]
         if matched:
             found.append(
                 {
