@@ -72,6 +72,70 @@ _RAW_PLACES = [
     ("Pilatus", 46.980, 8.250), ("Rigi", 47.050, 8.485),
     ("Säntis", 47.249, 9.343), ("Schilthorn", 46.556, 7.835),
     ("Stanserhorn", 46.920, 8.340),
+    # Südbaden / Schwarzwald / Bodensee (Umland Freiburg)
+    ("Offenburg", 48.474, 7.945), ("Lörrach", 47.615, 7.661),
+    ("Müllheim", 47.808, 7.630), ("Emmendingen", 48.121, 7.848),
+    ("Waldkirch", 48.093, 7.964), ("Bad Krozingen", 47.918, 7.699),
+    ("Breisach", 48.028, 7.583), ("Titisee", 47.903, 8.152),
+    ("Todtnau", 47.829, 7.945), ("Feldberg", 47.867, 8.004),
+    ("Schluchsee", 47.817, 8.166), ("Villingen-Schwenningen", 48.061, 8.459),
+    ("Friedrichshafen", 47.657, 9.480), ("Ravensburg", 47.782, 9.612),
+    # Baden-Württemberg / weitere Süd-Städte
+    ("Tübingen", 48.520, 9.058), ("Reutlingen", 48.492, 9.211),
+    ("Esslingen", 48.740, 9.310), ("Heilbronn", 49.142, 9.211),
+    ("Pforzheim", 48.891, 8.698), ("Göppingen", 48.703, 9.652),
+    # Bayern
+    ("Fürth", 49.478, 10.990), ("Erlangen", 49.590, 11.004),
+    ("Bamberg", 49.891, 10.887), ("Bayreuth", 49.948, 11.578),
+    ("Ingolstadt", 48.766, 11.425), ("Rosenheim", 47.856, 12.123),
+    ("Landshut", 48.537, 12.152), ("Passau", 48.567, 13.431),
+    ("Kempten", 47.727, 10.314), ("Oberstdorf", 47.409, 10.279),
+    ("Füssen", 47.571, 10.702), ("Berchtesgaden", 47.630, 13.004),
+    ("Bad Tölz", 47.760, 11.556), ("Mittenwald", 47.444, 11.261),
+    # Hessen / Mitte
+    ("Darmstadt", 49.872, 8.651), ("Offenbach", 50.096, 8.766),
+    ("Fulda", 50.555, 9.681), ("Gießen", 50.587, 8.678),
+    ("Marburg", 50.802, 8.767), ("Wetzlar", 50.560, 8.505),
+    # Rheinland-Pfalz / Saarland
+    ("Kaiserslautern", 49.440, 7.749), ("Ludwigshafen", 49.481, 8.446),
+    ("Speyer", 49.317, 8.441), ("Worms", 49.634, 8.360),
+    # NRW (weitere)
+    ("Leverkusen", 51.030, 6.983), ("Neuss", 51.198, 6.687),
+    ("Oberhausen", 51.470, 6.851), ("Solingen", 51.171, 7.085),
+    ("Remscheid", 51.178, 7.190), ("Recklinghausen", 51.614, 7.198),
+    ("Bottrop", 51.523, 6.923), ("Mönchengladbach", 51.180, 6.442),
+    ("Hagen", 51.361, 7.463), ("Hamm", 51.679, 7.816),
+    ("Siegen", 50.875, 8.024), ("Paderborn", 51.719, 8.754),
+    ("Gütersloh", 51.906, 8.379), ("Minden", 52.289, 8.915),
+    # Ost / Nord (weitere)
+    ("Jena", 50.927, 11.589), ("Chemnitz", 50.833, 12.921),
+    ("Zwickau", 50.718, 12.496), ("Cottbus", 51.760, 14.334),
+    ("Schwerin", 53.636, 11.401), ("Flensburg", 54.782, 9.437),
+    ("Lüneburg", 53.247, 10.414), ("Celle", 52.625, 10.081),
+    ("Hildesheim", 52.155, 9.958), ("Bremerhaven", 53.540, 8.580),
+    ("Wilhelmshaven", 53.529, 8.113),
+    # Küsten- / Ferien-Orte
+    ("Norderney", 53.707, 7.156), ("Borkum", 53.578, 6.663),
+    ("Timmendorfer Strand", 54.006, 10.774), ("Willingen", 51.293, 8.610),
+    ("Winterberg", 51.194, 8.531),
+    # Österreich (weitere / Alpen)
+    ("Villach", 46.611, 13.856), ("St. Pölten", 48.204, 15.625),
+    ("Dornbirn", 47.412, 9.744), ("Zell am See", 47.323, 12.797),
+    ("Sölden", 46.966, 11.007), ("Ischgl", 47.011, 10.291),
+    ("Mayrhofen", 47.166, 11.868), ("Saalbach", 47.390, 12.636),
+    ("Bad Gastein", 47.115, 13.134), ("Seefeld", 47.329, 11.188),
+    # Schweiz (weitere Städte / Alpen-Resorts)
+    ("Winterthur", 47.500, 8.724), ("Fribourg", 46.806, 7.161),
+    ("Neuchâtel", 46.992, 6.931), ("Sion", 46.233, 7.360),
+    ("Locarno", 46.171, 8.799), ("Thun", 46.758, 7.628),
+    ("Biel", 47.137, 7.247), ("Schaffhausen", 47.697, 8.635),
+    ("Aarau", 47.391, 8.045), ("Saas-Fee", 46.108, 7.929),
+    ("Verbier", 46.096, 7.228), ("Gstaad", 46.472, 7.286),
+    ("Wengen", 46.605, 7.922), ("Mürren", 46.559, 7.892),
+    ("Arosa", 46.783, 9.680), ("Flims", 46.837, 9.284),
+    ("Laax", 46.809, 9.258), ("Crans-Montana", 46.308, 7.481),
+    ("Adelboden", 46.494, 7.559), ("Lenzerheide", 46.729, 9.558),
+    ("Klosters", 46.869, 9.879), ("Leukerbad", 46.379, 7.627),
 ]
 PLACES = {normalize(name): (name, lat, lon) for name, lat, lon in _RAW_PLACES}
 
