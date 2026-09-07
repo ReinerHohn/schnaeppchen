@@ -46,6 +46,8 @@ FEEDS.update({f"pj_{g}": f"{_PJ}/rss/gruppe/{g}" for g in _PJ_GROUPS})
 # (relevant für Bergbahnen/Fondue/Swiss-Reisen), CHF.
 WP_FEEDS = {
     "preispirat_ch": {"url": "https://www.preispirat.ch/feed/", "currency": "CHF"},
+    "urlaubspiraten": {"url": "https://www.urlaubspiraten.de/feed", "currency": "€"},
+    "reisetiger": {"url": "https://www.reisetiger.net/feed", "currency": "€"},
 }
 
 # Suche aktiv nach diesen Begriffen (mydealz-Volltextsuche, HTML). Für Nischen

@@ -128,7 +128,8 @@
     "only_relevant": true,
     "feeds": [
       "restaurant", "reisen", "urlaub", "hotel", "fluege",
-      "konzerte", "musical", "pj_reisen", "pj_urlaub", "preispirat_ch"
+      "konzerte", "musical", "pj_reisen", "pj_urlaub",
+      "preispirat_ch", "urlaubspiraten", "reisetiger"
     ],
     "searches": [
       "hummer", "königskrabbe", "langusten", "kaisergranat", "austern", "jakobsmuscheln",
