@@ -8,6 +8,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from analyze import analyze_all  # noqa: E402
 from mydealz import (  # noqa: E402
     _euro, parse_discount, parse_feed, parse_price_merchant, parse_search, parse_title,
+    parse_wp_feed,
 )
 from sweetspots import match_sweetspots  # noqa: E402
 
@@ -87,6 +88,51 @@ class TestSearch(unittest.TestCase):
         self.assertEqual(o["original_price"], 34.99)
         self.assertEqual(o["group"], "suche:hummer")
         self.assertTrue(o["url"].startswith("https://www.mydealz.de/deals/hummer"))
+
+
+WP_SAMPLE = """<rss><channel>
+<item>
+  <title><![CDATA[🚠 Jungfraujoch Bahnticket für 99 CHF statt 249 CHF]]></title>
+  <link>https://www.preispirat.ch/jungfraujoch-99/</link>
+  <category><![CDATA[Reisen]]></category>
+  <description><![CDATA[<img src="https://img/jf.jpg"/> Top of Europe Ticket, statt 249 CHF.]]></description>
+</item>
+</channel></rss>"""
+
+
+class TestWpFeed(unittest.TestCase):
+    def test_parse_wp_feed(self):
+        offers = parse_wp_feed(WP_SAMPLE, "preispirat_ch", currency="CHF")
+        self.assertEqual(len(offers), 1)
+        o = offers[0]
+        self.assertEqual(o["currency"], "CHF")
+        self.assertEqual(o["price"], 99.0)
+        self.assertEqual(o["original_price"], 249.0)
+        self.assertEqual(o["image"], "https://img/jf.jpg")
+        self.assertTrue(o["title"].startswith("🚠 Jungfraujoch"))
+
+
+class TestCuration(unittest.TestCase):
+    def test_excluded_junk_not_relevant(self):
+        interests = [{"name": "Sterne & Fine Dining", "keywords": ["gourmet"],
+                      "category": "Fine Dining", "max_price": 300,
+                      "min_discount_pct": 15, "weight": 1.7}]
+        settings = {"exclude": ["kaufland", "vegan"]}
+        offer = {"title": "Kaufland: Garden Gourmet vegane Fleisch-Alternative 1,49€",
+                 "price": 1.49, "category": "Lebensmittel", "blurb": ""}
+        [a] = analyze_all([offer], {}, interests, settings)
+        self.assertTrue(a["is_excluded"])            # von 'kaufland'/'vegan' geblockt
+        self.assertFalse(a["is_relevant"])           # trotz 'gourmet'-Treffer NICHT relevant
+
+    def test_real_interest_is_relevant(self):
+        interests = [{"name": "Edel-Seafood", "keywords": ["hummer"],
+                      "category": "Delikatessen", "max_price": 150,
+                      "min_discount_pct": 12, "weight": 1.6}]
+        offer = {"title": "Ganzer Hummer 500g für 19,99€", "price": 19.99,
+                 "category": "Delikatessen", "blurb": ""}
+        [a] = analyze_all([offer], {}, interests, {"exclude": ["kaufland", "vegan"]})
+        self.assertFalse(a["is_excluded"])
+        self.assertTrue(a["is_relevant"])
 
 
 class TestSweetspots(unittest.TestCase):

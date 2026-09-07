@@ -53,6 +53,8 @@ class TestNormalizeMatch(unittest.TestCase):
         self.assertTrue(keyword_matches("krabbe", "Königskrabben-Beine 1kg"))
         self.assertFalse(keyword_matches("rigi", "DAZN Gamepass im Original"))
         self.assertFalse(keyword_matches("wels", "Edelweiss Pullover"))
+        self.assertFalse(keyword_matches("spa", "Spare bis zu 50% auf Technik"))
+        self.assertTrue(keyword_matches("spa", "Wellness Spa Hotel Tirol"))
         # Mehrwort-Begriff als Phrase
         self.assertTrue(keyword_matches("glacier express", "Ticket Glacier Express Panorama"))
         self.assertFalse(keyword_matches("glacier express", "Glacier Bier Express Versand"))

@@ -24,6 +24,7 @@ def _temp_class(t):
 
 
 def _card(a, cur):
+    cur = a.get("currency") or cur
     temp = a.get("temperature")
     price = a.get("price")
     price_txt = f'{price:.2f} {cur}' if price is not None else "Preis im Deal"

@@ -48,8 +48,8 @@ def keyword_matches(keyword, text):
     * Mehrwort-Begriffe ('glacier express'): als Phrase (Teilstring) prüfen.
     * Lange Einzelwörter (>=5, 'krabbe', 'hummer'): Teilstring — fängt deutsche
       Komposita ('krabbe' in 'Königskrabben', 'hummer' in 'Hummersuppe').
-    * Kurze Einzelwörter (<5, 'rigi', 'wels'): nur am WORTANFANG, sonst gäbe es
-      Mittendrin-Rauschen ('rigi' in 'Original', 'wels' in 'Edelweiss').
+    * Kurze Einzelwörter (<5, 'spa', 'rigi', 'wels'): nur als GANZES Wort, sonst
+      Rauschen ('spa' in 'Spare', 'rigi' in 'Original', 'wels' in 'Edelweiss').
     """
     k = normalize(keyword)
     if not k:
@@ -57,7 +57,7 @@ def keyword_matches(keyword, text):
     hay = normalize(text)
     if " " in k or len(k) >= 5:
         return k in hay
-    return re.search(r"(?:^| )" + re.escape(k), hay) is not None
+    return k in hay.split()  # kurz -> nur als ganzes Wort ('spa' != 'Spare')
 
 
 # --------------------------------------------------------------------------- #
@@ -163,6 +163,16 @@ def analyze_offer(offer, history, interests, settings, sweetspots=None):
     sweet = match_sweetspots(offer, sweetspots)
     sweet_boost = min(sum(s["boost"] for s in sweet), 0.5)
 
+    # Kuratieren: Massenware-/Müll-Blockliste (Nordsee, Discounter, Mobilfunk ...).
+    exclude = settings.get("exclude", [])
+    ex_text = " ".join(
+        str(offer.get(k, "")) for k in ("title", "brand", "category", "blurb")
+    )
+    hit_exclude = next((kw for kw in exclude if keyword_matches(kw, ex_text)), None)
+    is_excluded = hit_exclude is not None
+    # Relevant = trifft ein Interesse oder einen Sweet-Spot UND ist nicht geblockt.
+    is_relevant = (bool(interest) or bool(sweet)) and not is_excluded
+
     # Community-Hotness -> 0..1 (500° gilt als "top").
     temp = offer.get("temperature")
     hot_threshold = settings.get("hot_temp_threshold", 200)
@@ -212,6 +222,9 @@ def analyze_offer(offer, history, interests, settings, sweetspots=None):
             "matched_keywords": matched,
             "sweetspots": sweet,
             "is_schnaeppchen": is_schnaeppchen,
+            "is_excluded": is_excluded,
+            "excluded_by": hit_exclude,
+            "is_relevant": is_relevant,
             "deal_score": score,
             "history": hist,
         }

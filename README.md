@@ -38,8 +38,9 @@ automatisch auf Demo-Daten zurück.
 
 ## Datenquellen, Feeds & aktive Suche
 
-Zwei Baustellen, beide über dieselbe Pepper-Plattform (gleicher Parser):
-**mydealz.de** (DE) und **preisjaeger.at** (AT, Feeds mit `pj_`-Präfix).
+Zwei Pepper-Plattformen mit gleichem Parser — **mydealz.de** (DE) und
+**preisjaeger.at** (AT, `pj_`-Präfix) — plus **preispirat.ch** (CH, WordPress,
+CHF; relevant für Bergbahnen/Fondue/Swiss-Reisen).
 
 **Feeds** (`config.json → settings.feeds`) — Presets in `mydealz.py → FEEDS`:
 
@@ -94,6 +95,23 @@ Für jeden Artikel wird der **Median** der Preishistorie (Standard: 90 Tage) als
 „üblicher Preis" genommen (robust gegen einzelne Ausreißer). Der Rabatt ist die
 Abweichung des aktuellen Preises davon. Der **Deal-Score** kombiniert Rabatt +
 Wochentags-Bonus, gewichtet mit der Wichtigkeit des Interesses.
+
+## Exklusiv-Modus (Kuratierung)
+
+Standardmäßig zeigt das Tool **nur kuratierte Deals**: solche, die zu einem
+Interesse **oder** Sweet-Spot passen **und nicht** auf der Müll-Blockliste stehen.
+Kein Massenware-Firehose (kein Nordsee, Kaufland, vegane Fleisch-Alternativen,
+Tropical Islands, Discounter, Handytarife, Elektronik-Kram …).
+
+- `config.json → exclude` — Blockliste (Händler/Marken/Kategorien), beliebig erweiterbar.
+- `config.json → settings.only_relevant` (default `true`) — Kuratierung an/aus.
+- CLI `--all` — Kuratierung einmalig aus (kompletter Firehose).
+
+Die Konsole meldet z. B. `kuratiert: 47 von 245 Deals (0 Müll geblockt)`.
+
+Interessen sind auf **exklusiv/aspirational** ausgelegt: Genuss-Zugfahrten,
+Schweizer Bergbahnen, Sterne & Fine Dining, Exklusiv & Luxus (Kaviar, Trüffel,
+Wagyu, Suite, Spa …), Edel-Seafood (Hummer/Königskrabbe), Käsefondue & Raclette.
 
 ## Sweet Spots anpassen
 

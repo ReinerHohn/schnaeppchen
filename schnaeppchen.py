@@ -52,12 +52,11 @@ def get_offers(source, feeds, searches, settings):
 
 def print_console(analyzed, settings, meta):
     cur = settings.get("currency", "€")
-    ok = ", ".join(f"{k}:{n}" for k, n in meta.get("ok", []))
-    print(f"\n🏷️  SCHNÄPPCHEN-JÄGER  ({ok})\n" + "=" * 64)
+    c = meta.get("curation", {})
+    print(f"\n🏷️  SCHNÄPPCHEN-JÄGER — kuratiert: {c.get('shown','?')} von {c.get('total','?')} Deals "
+          f"({c.get('blocked',0)} Müll geblockt)\n" + "=" * 64)
     shown = 0
     for a in analyzed[: settings.get("top_n", 60)]:
-        if not a["is_schnaeppchen"] and a["deal_score"] < settings.get("min_deal_score", 0.0):
-            continue
         flags = []
         if a["is_schnaeppchen"]:
             flags.append("🔥 SCHNÄPPCHEN")
@@ -87,6 +86,7 @@ def main(argv=None):
     ap.add_argument("--source", choices=["mydealz", "demo"], default=None)
     ap.add_argument("--feeds", default=None, help="Komma-Liste, z.B. hot,lebensmittel,reisen")
     ap.add_argument("--search", default=None, help="Komma-Liste aktiver Suchbegriffe, z.B. hummer,krabbe")
+    ap.add_argument("--all", action="store_true", help="Kuratierung aus: alle Deals zeigen (Firehose)")
     ap.add_argument("--json", action="store_true")
     ap.add_argument("--open", action="store_true")
     args = ap.parse_args(argv)
@@ -102,6 +102,14 @@ def main(argv=None):
 
     offers, history, meta = get_offers(source, feeds, searches, settings)
     analyzed = analyze_all(offers, history, interests, settings, sweetspots)
+
+    # Kuratieren: standardmäßig NUR relevante Deals (Interesse/Sweet-Spot, nicht
+    # geblockt) – kein Massenware-Firehose. Mit --all abschaltbar.
+    total = len(analyzed)
+    blocked = sum(1 for a in analyzed if a["is_excluded"])
+    if settings.get("only_relevant", True) and not args.all:
+        analyzed = [a for a in analyzed if a["is_relevant"]]
+    meta["curation"] = {"total": total, "shown": len(analyzed), "blocked": blocked}
 
     if args.json:
         for a in analyzed:

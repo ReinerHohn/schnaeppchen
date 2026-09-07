@@ -22,6 +22,13 @@ from analyze import keyword_matches
 # Standard-Heuristiken. In config.json unter "sweetspots" überschreibbar/erweiterbar.
 DEFAULT_SWEETSPOTS = [
     {
+        "name": "Preisfehler",
+        "icon": "\U0001F3AF",  # 🎯
+        "keywords": ["preisfehler", "preis-fehler", "price error", "fehlpreis"],
+        "rationale": "Vermuteter Preisfehler – extrem unter Marktwert. Schnell sein.",
+        "boost": 0.45,
+    },
+    {
         "name": "Invasive Delikatesse",
         "icon": "\U0001F980",  # 🦀
         "keywords": [

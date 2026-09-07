@@ -42,6 +42,12 @@ FEEDS = {
 FEEDS.update({g: f"{_MD}/rss/gruppe/{g}" for g in _MD_GROUPS})
 FEEDS.update({f"pj_{g}": f"{_PJ}/rss/gruppe/{g}" for g in _PJ_GROUPS})
 
+# Generische WordPress-Deal-Feeds (anderer Parser). preispirat.ch = Schweiz
+# (relevant für Bergbahnen/Fondue/Swiss-Reisen), CHF.
+WP_FEEDS = {
+    "preispirat_ch": {"url": "https://www.preispirat.ch/feed/", "currency": "CHF"},
+}
+
 # Suche aktiv nach diesen Begriffen (mydealz-Volltextsuche, HTML). Für Nischen
 # wie Hummer/Königskrabbe, die selten in den Standard-Feeds auftauchen.
 _SEARCH_URL = _MD + "/search?q={}"
@@ -60,11 +66,14 @@ def _cdata(text):
     return html.unescape(text).strip()
 
 
+_CUR = r"(?:€|EUR|CHF|SFr\.?|Fr\.?)"  # Euro + Schweizer Franken (preispirat.ch)
+
+
 def _euro(text):
-    """Ersten Euro-Betrag aus Text ziehen. '1.299,00€' -> 1299.0, '3,84€' -> 3.84."""
+    """Ersten Geldbetrag ziehen. '1.299,00€'->1299.0, '3,84€'->3.84, '99 CHF'->99.0."""
     if not text:
         return None
-    m = re.search(r"(\d{1,3}(?:\.\d{3})+|\d+)(?:,(\d{1,2}))?\s*(?:€|EUR)", text)
+    m = re.search(r"(\d{1,3}(?:\.\d{3})+|\d+)(?:,(\d{1,2}))?\s*" + _CUR, text)
     if not m:
         return None
     whole = m.group(1).replace(".", "")
@@ -105,7 +114,7 @@ def parse_discount(text):
     """
     original = None
     m = re.search(r"(?:statt|uvp|vgl\.?|regulär|regulaer|anstatt)\D{0,12}?"
-                  r"(\d{1,3}(?:\.\d{3})*(?:,\d{1,2})?)\s*(?:€|EUR)", text, flags=re.I)
+                  r"(\d{1,3}(?:\.\d{3})*(?:,\d{1,2})?)\s*" + _CUR, text, flags=re.I)
     if m:
         original = _euro(m.group(1) + "€")
     pct = None
@@ -136,6 +145,8 @@ def parse_feed(xml, group=None, today=None):
         blurb = html.unescape(re.sub("<[^>]+>", " ", desc))
         blurb = re.sub(r"\s+", " ", blurb).strip()
         text_all = f"{title} {blurb}"
+        if price is None:  # Fallback: Preis steckt im Titel ('... für 19,99€')
+            price = _euro(title)
         original, pct = parse_discount(text_all)
         img = re.search(r'<img[^>]+src="([^"]+)"', desc)
         category = _cdata(tag("category"))
@@ -212,7 +223,58 @@ def parse_search(html_doc, query, base=_MD, today=None):
     return offers
 
 
+def parse_wp_feed(xml, source, currency="€", today=None):
+    """Generisches WordPress-RSS (z.B. preispirat.ch) parsen.
+
+    Kein °-System; Preis/Rabatt stecken in Titel oder Beschreibung.
+    """
+    if today is None:
+        today = datetime.date.today()
+    offers = []
+    for block in re.findall(r"<item>(.*?)</item>", xml, flags=re.S):
+        def tag(name):
+            m = re.search(rf"<{name}[^>]*>(.*?)</{name}>", block, flags=re.S)
+            return m.group(1) if m else ""
+
+        title = _cdata(tag("title"))
+        if not title:
+            continue
+        link = _cdata(tag("link")) or _cdata(tag("guid"))
+        body = tag("encoded") or tag("description")
+        blurb = re.sub(r"\s+", " ", _cdata(re.sub("<[^>]+>", " ", body))).strip()
+        text = f"{title} {blurb}"
+        original, pct = parse_discount(text)
+        img = re.search(r'<(?:media:content|enclosure)[^>]+url="([^"]+)"', block) \
+            or re.search(r'<img[^>]+src="([^"]+)"', body)
+        offers.append(
+            {
+                "title": title,
+                "brand": "",
+                "category": _cdata(tag("category")),
+                "price": _euro(title) or _euro(blurb),
+                "currency": currency,
+                "url": link,
+                "source": source,
+                "group": source,
+                "temperature": None,
+                "original_price": original,
+                "discount_pct": pct,
+                "image": img.group(1) if img else None,
+                "blurb": blurb[:280],
+                "observed_at": today.isoformat(),
+            }
+        )
+    return offers
+
+
 def _fetch_feed_job(f, timeout, today):
+    if f in WP_FEEDS:
+        cfg = WP_FEEDS[f]
+        try:
+            xml = _fetch(cfg["url"], timeout)
+        except Exception as exc:  # noqa: BLE001
+            return ("feed", f, None, str(exc))
+        return ("feed", f, parse_wp_feed(xml, f, cfg.get("currency", "€"), today), None)
     url = FEEDS.get(f, f)
     label = f if f in FEEDS else "custom"
     try:
