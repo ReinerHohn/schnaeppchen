@@ -213,6 +213,18 @@ def analyze_offer(offer, history, interests, settings, sweetspots=None):
     if is_shop:  # kuratierte Feinkost bekommt einen soliden Sockel
         score = max(score, 0.35)
 
+    # Ortsbezug & Entfernung (nur wenn ein Startort konfiguriert ist). Feinkost-
+    # Shop-Produkte sind versandfähig -> kein Ort; Events/Erlebnisse haben einen.
+    location = distance_km = dest_coords = None
+    home = settings.get("home_coords")
+    if home and not str(offer.get("group", "")).startswith("feinkost:"):
+        from geo import locate, haversine  # lokal -> kein Import-Zyklus
+        loc = locate(f"{offer.get('title', '')} {offer.get('blurb', '')}")
+        if loc:
+            location, lat, lon = loc
+            distance_km = haversine(home[0], home[1], lat, lon)
+            dest_coords = [lat, lon]
+
     result = dict(offer)
     result.update(
         {
@@ -231,6 +243,9 @@ def analyze_offer(offer, history, interests, settings, sweetspots=None):
             "excluded_by": hit_exclude,
             "is_relevant": is_relevant,
             "deal_score": score,
+            "location": location,
+            "distance_km": distance_km,
+            "dest_coords": dest_coords,
             "history": hist,
         }
     )

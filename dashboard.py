@@ -23,7 +23,7 @@ def _temp_class(t):
     return "t-cool"
 
 
-def _card(a, cur):
+def _card(a, cur, home_coords=None):
     cur = a.get("currency") or cur
     temp = a.get("temperature")
     price = a.get("price")
@@ -74,6 +74,8 @@ def _card(a, cur):
     url = _esc(a.get("url", ""))
     merchant = _esc(a.get("brand", ""))
 
+    dist = a.get("distance_km")
+    dist_attr = f"{dist:.0f}" if dist is not None else ""
     data = (
         f'data-interest="{1 if a.get("interest") else 0}" '
         f'data-hot="{1 if a.get("is_hot") else 0}" '
@@ -81,8 +83,24 @@ def _card(a, cur):
         f'data-sweet="{1 if a.get("sweetspots") else 0}" '
         f'data-deal="{1 if a.get("is_schnaeppchen") else 0}" '
         f'data-shop="{1 if is_food else 0}" '
-        f'data-event="{1 if is_event else 0}"'
+        f'data-event="{1 if is_event else 0}" '
+        f'data-dist="{dist_attr}"'
     )
+
+    # Entfernungs-Zeile + Maps-Routen-Link (nur wenn Ort erkannt & Startort da).
+    geo_line = ""
+    if a.get("location") and dist is not None:
+        route = ""
+        if home_coords and a.get("dest_coords"):
+            d = a["dest_coords"]
+            href = ("https://www.google.com/maps/dir/?api=1"
+                    f"&origin={home_coords[0]},{home_coords[1]}"
+                    f"&destination={d[0]},{d[1]}")
+            route = (f'<span class="route" data-href="{_esc(href)}" '
+                     f'title="Route in Google Maps öffnen">\U0001F697 Route</span>')
+        geo_line = (f'<div class="geo">\U0001F4CD {_esc(a["location"])} '
+                    f'· {dist:.0f} km{route}</div>')
+
     return (
         f'<a class="card" href="{url}" target="_blank" rel="noopener" {data}>'
         f'{thumb}{temp_badge}</div>'
@@ -92,6 +110,7 @@ def _card(a, cur):
         f'<div class="price">{price_txt}'
         + (f' <span class="merchant">@ {merchant}</span>' if merchant else "")
         + "</div>"
+        f'{geo_line}'
         f'<div class="sub">{" ".join(sub)}</div>'
         f'<div class="bar"><span style="width:{min(a["deal_score"]*100,100):.0f}%"></span></div>'
         f"</div></a>"
@@ -119,7 +138,18 @@ def _summary(analyzed, settings):
 
 def build_dashboard(analyzed, settings, generated_at, meta=None):
     cur = settings.get("currency", "€")
-    cards = "".join(_card(a, cur) for a in analyzed)
+    home_coords = settings.get("home_coords")
+    cards = "".join(_card(a, cur, home_coords) for a in analyzed)
+
+    # Distanz-Filter-Buttons nur, wenn ein Startort gesetzt ist.
+    dist_filters = ""
+    if home_coords:
+        km_steps = settings.get("distance_filters_km") or [50, 100, 200, 400]
+        btns = "".join(
+            f'<button data-maxdist="{k}">\U0001F4CD ≤ {k} km</button>' for k in km_steps
+        )
+        label = _esc(settings.get("home_label", ""))
+        dist_filters = (f'<span class="fsep">Entfernung ab {label}:</span>{btns}')
 
     # Preisverlauf-Charts nur wenn eigene Historie da ist (Demo-Modus).
     charts = [
@@ -148,6 +178,7 @@ def build_dashboard(analyzed, settings, generated_at, meta=None):
         generated_at=_esc(generated_at),
         summary=_summary(analyzed, settings),
         cards=cards,
+        dist_filters=dist_filters,
         charts_section=charts_section,
         charts_json=json.dumps(charts),
         cur=cur,
@@ -208,6 +239,11 @@ _TEMPLATE = """<!DOCTYPE html>
   .title {{ font-size:14px; line-height:1.3; font-weight:600; }}
   .price {{ font-size:19px; font-weight:700; color:var(--accent); margin-top:auto; }}
   .merchant {{ font-size:12px; font-weight:400; color:var(--muted); }}
+  .geo {{ font-size:12px; color:#9fb3c8; display:flex; align-items:center; gap:8px; }}
+  .route {{ background:#193052; color:#7bb4ff; font-weight:600; padding:1px 8px;
+    border-radius:20px; cursor:pointer; }}
+  .route:hover {{ background:#1f3f6e; }}
+  .fsep {{ align-self:center; font-size:12px; color:var(--muted); margin-left:6px; }}
   .sub {{ font-size:12px; color:var(--muted); display:flex; gap:8px; flex-wrap:wrap; }}
   .orig {{ text-decoration:line-through; }} .pct {{ color:#ff7875; font-weight:600; }}
   .wk {{ color:var(--week); }}
@@ -235,6 +271,7 @@ _TEMPLATE = """<!DOCTYPE html>
     <button data-f="shop">\U0001F99E Delikatessen-Shops</button>
     <button data-f="event">\U0001F37D️ Genuss-Events</button>
     <button data-f="weekday">\U0001F4C5 Wochentags billiger</button>
+    {dist_filters}
   </div>
 
   {charts_section}
@@ -245,17 +282,30 @@ _TEMPLATE = """<!DOCTYPE html>
   <footer>{src}</footer>
 </div>
 <script>
-// Filter
+// Filter (Kategorie-Buttons data-f + Entfernungs-Buttons data-maxdist)
 const btns = document.querySelectorAll('.filters button');
 const cards = [...document.querySelectorAll('#deals .card')];
 btns.forEach(b => b.addEventListener('click', () => {{
   btns.forEach(x => x.classList.remove('active'));
   b.classList.add('active');
-  const f = b.dataset.f;
+  const maxd = b.dataset.maxdist;
   cards.forEach(c => {{
-    const show = f === 'all' || c.dataset[f] === '1';
+    let show;
+    if (maxd !== undefined) {{
+      const d = c.dataset.dist;
+      show = d !== '' && Number(d) <= Number(maxd);
+    }} else {{
+      const f = b.dataset.f;
+      show = f === 'all' || c.dataset[f] === '1';
+    }}
     c.style.display = show ? '' : 'none';
   }});
+}}));
+
+// Route-Chip: eigener Klick (öffnet Maps), ohne die Deal-Karte zu öffnen.
+document.querySelectorAll('.route').forEach(r => r.addEventListener('click', ev => {{
+  ev.preventDefault(); ev.stopPropagation();
+  window.open(r.dataset.href, '_blank', 'noopener');
 }}));
 
 // Optionale Preisverlauf-Charts (Demo)

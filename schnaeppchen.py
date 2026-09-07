@@ -94,6 +94,7 @@ def main(argv=None):
     ap.add_argument("--source", choices=["mydealz", "demo"], default=None)
     ap.add_argument("--feeds", default=None, help="Komma-Liste, z.B. hot,lebensmittel,reisen")
     ap.add_argument("--search", default=None, help="Komma-Liste aktiver Suchbegriffe, z.B. hummer,krabbe")
+    ap.add_argument("--home", default=None, help="Startort für Entfernung, z.B. '50667 Köln' oder 'lat,lon'")
     ap.add_argument("--all", action="store_true", help="Kuratierung aus: alle Deals zeigen (Firehose)")
     ap.add_argument("--json", action="store_true")
     ap.add_argument("--open", action="store_true")
@@ -104,6 +105,17 @@ def main(argv=None):
     settings = config.get("settings", {})
     settings["exclude"] = config.get("exclude", [])  # Blockliste steht top-level
     sweetspots = config.get("sweetspots")  # None -> Defaults in sweetspots.py
+
+    # Startort geocoden -> Entfernungen (Luftlinie) in der Analyse & im Dashboard.
+    home = args.home if args.home is not None else settings.get("home")
+    if home:
+        from geo import geocode_home
+        geo = geocode_home(home)
+        if geo:
+            settings["home_coords"] = [geo[0], geo[1]]
+            settings["home_label"] = geo[2]
+        else:
+            print(f"[warn] Startort '{home}' nicht erkannt – Entfernungsfilter aus.")
 
     source = args.source or settings.get("source", "mydealz")
     feeds = args.feeds.split(",") if args.feeds else settings.get("feeds")

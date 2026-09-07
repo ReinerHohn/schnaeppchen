@@ -31,7 +31,21 @@ python3 schnaeppchen.py --open          # Dashboard direkt im Browser
 python3 schnaeppchen.py --feeds hot,lebensmittel,reisen,konzerte
 python3 schnaeppchen.py --source demo   # Offline-Demo (mit Preisverlauf-Charts)
 python3 schnaeppchen.py --json          # Ergebnis als JSON
+python3 schnaeppchen.py --home "50667 Köln"   # Entfernungsfilter ab deinem Ort
 ```
+
+## Entfernungsfilter & Route (offline)
+
+Events/Erlebnisse und Bergbahn-/Reise-Deals haben einen **Ort** im Titel
+(„Dinner Hopping Augsburg", „Glacier Express nach Zermatt"). Mit einem
+**Startort** (`settings.home` in `config.json` oder `--home`) rechnet das Tool die
+**Luftlinie** (Haversine) und blendet im Dashboard **Distanz-Filter** (≤50/100/200/
+400 km) plus je Karte einen **🚗 Route-Link** (Google-Maps-Navigation) ein.
+
+- Startort als `PLZ Ort` (`50667 Köln`), nur `Ort` oder `lat,lon`.
+- Orte kommen aus einer eingebauten Städte-Tabelle (DE/AT/CH inkl. Bergbahnen);
+  unbekannte dt. PLZ nutzen einen groben Regions-Fallback. Kein Netz/API nötig.
+- Versandfähige Feinkost-Shop-Produkte bekommen bewusst **keine** Entfernung.
 
 Keine Abhängigkeiten – **reine Python-Standardbibliothek** (Python 3.9+).
 Das Dashboard ist eine einzelne, self-contained `dashboard.html` (Karten-Grid mit
