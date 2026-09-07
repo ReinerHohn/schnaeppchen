@@ -35,7 +35,7 @@
     },
     {
       "name": "Edel-Seafood (Hummer/Krabbe)",
-      "keywords": ["hummer", "königskrabbe", "langusten", "kaisergranat", "austern", "jakobsmuscheln", "seeigel", "gambas"],
+      "keywords": ["hummer", "königskrabbe", "langusten", "kaisergranat", "austern", "jakobsmuscheln", "seeigel", "gambas", "garnelen", "scampi", "krustentier"],
       "category": "Delikatessen",
       "max_price": 150,
       "min_discount_pct": 12,
@@ -75,7 +75,8 @@
     "mobilfunk", "tarif", "allnet", "sim-karte", "vertrag", "versicherung",
     "staubsauger", "saugroboter", "akku", "kabel", "toner", "druckerpatrone", "ssd",
     "festplatte", "monitor", "laptop", "notebook", "fernseher", "smartphone", "tablet",
-    "powerbank", "ladegerät", "router", "reifen",
+    "powerbank", "ladegerät", "router", "reifen", "gehäuse", "klemmbaustein",
+    "mould king", "modellbau", "spielzeug",
     "dazn", "netflix", "gamepass", "playstation", "xbox", "nintendo switch",
     "chips", "tiefkühl", "energy drink", "kaffeekapsel", "waschmittel", "windeln",
     "katzenfutter", "hundefutter", "spülmaschinentabs"
@@ -126,13 +127,21 @@
     "top_n": 60,
     "source": "mydealz",
     "only_relevant": true,
+    "shops": [
+      {
+        "name": "gourmetfleisch",
+        "sitemap": "https://www.gourmetfleisch.de/sitemap.xml",
+        "currency": "€",
+        "encoding": "iso-8859-1"
+      }
+    ],
     "feeds": [
       "restaurant", "reisen", "urlaub", "hotel", "fluege",
       "konzerte", "musical", "pj_reisen", "pj_urlaub",
       "preispirat_ch", "urlaubspiraten", "reisetiger"
     ],
     "searches": [
-      "hummer", "königskrabbe", "langusten", "kaisergranat", "austern", "jakobsmuscheln",
+      "königskrabbe", "langusten", "kaisergranat", "austern", "jakobsmuscheln",
       "kaviar", "trüffel", "wagyu", "dry aged",
       "glacier express", "bernina express", "jungfraujoch", "titlis", "matterhorn", "gornergrat",
       "käsefondue", "fondue set", "raclette set",

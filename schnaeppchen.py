@@ -42,6 +42,14 @@ def get_offers(source, feeds, searches, settings):
 
     from mydealz import collect
     offers, meta = collect(feeds=feeds, searches=searches)
+    # Feinkost-/Seafood-Shops direkt scrapen (echte Hummer/Krabbe-Produkte).
+    shops = settings.get("shops")
+    if shops:
+        from shop import fetch_shops
+        shop_offers, shop_meta = fetch_shops(shops)
+        offers += shop_offers
+        meta["ok"] += shop_meta["ok"]
+        meta["failed"] += shop_meta["failed"]
     if not offers:  # Netzproblem -> sauberer Fallback auf Demo
         print("[warn] Keine Live-Deals erreichbar – nutze Demo-Daten.")
         from sources import demo_source
@@ -94,6 +102,7 @@ def main(argv=None):
     config = load_config(args.config)
     interests = config["interests"]
     settings = config.get("settings", {})
+    settings["exclude"] = config.get("exclude", [])  # Blockliste steht top-level
     sweetspots = config.get("sweetspots")  # None -> Defaults in sweetspots.py
 
     source = args.source or settings.get("source", "mydealz")

@@ -124,6 +124,20 @@ class TestCuration(unittest.TestCase):
         self.assertTrue(a["is_excluded"])            # von 'kaufland'/'vegan' geblockt
         self.assertFalse(a["is_relevant"])           # trotz 'gourmet'-Treffer NICHT relevant
 
+    def test_shipped_config_blocklist_wired(self):
+        # Guard gegen den Bug: exclude steht top-level, muss in settings landen.
+        import json
+        cfg_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "config.json")
+        cfg = json.load(open(cfg_path, encoding="utf-8"))
+        self.assertTrue(cfg.get("exclude"), "config.json braucht top-level 'exclude'")
+        settings = dict(cfg["settings"])
+        settings["exclude"] = cfg["exclude"]
+        offer = {"title": "Nordsee 3€ Garnelen-Kimchi Burger", "price": 3.0,
+                 "category": "", "blurb": ""}
+        [a] = analyze_all([offer], {}, cfg["interests"], settings, cfg.get("sweetspots"))
+        self.assertTrue(a["is_excluded"])
+        self.assertFalse(a["is_relevant"])
+
     def test_real_interest_is_relevant(self):
         interests = [{"name": "Edel-Seafood", "keywords": ["hummer"],
                       "category": "Delikatessen", "max_price": 150,

@@ -38,9 +38,18 @@ automatisch auf Demo-Daten zurück.
 
 ## Datenquellen, Feeds & aktive Suche
 
-Zwei Pepper-Plattformen mit gleichem Parser — **mydealz.de** (DE) und
-**preisjaeger.at** (AT, `pj_`-Präfix) — plus **preispirat.ch** (CH, WordPress,
-CHF; relevant für Bergbahnen/Fondue/Swiss-Reisen).
+Drei Arten von Quellen:
+
+- **Deal-Communities** (Pepper, gleicher Parser): mydealz.de (DE) + preisjaeger.at
+  (AT, `pj_`) — plus WordPress-Blogs preispirat.ch (CH, CHF), urlaubspiraten.de,
+  reisetiger.de (Reise-Deals).
+- **Aktive Suche** über die mydealz-Volltextsuche (Nischen).
+- **Feinkost-/Seafood-Shops** (`config.json → settings.shops`): echte Hummer/
+  Krabbe/Langusten-Produkte direkt aus Gourmet-Shops. Der Scraper liest die
+  Shop-Sitemap, filtert Krustentier-/Delikatessen-URLs und parst je Produktseite
+  Name + Preis + Bild (server-gerendert). Standardmäßig **gourmetfleisch.de**
+  (Shopware, iso-8859-1). Weitere Shops per Eintrag `{name, sitemap, currency,
+  encoding, match}` – kein Code nötig.
 
 **Feeds** (`config.json → settings.feeds`) — Presets in `mydealz.py → FEEDS`:
 
@@ -124,8 +133,9 @@ bald") einfach ergänzen.
 
 | Datei | Zweck |
 |-------|-------|
-| `schnaeppchen.py` | CLI: Quelle → Analyse → Konsole + Dashboard |
-| `mydealz.py` | Live-Quelle: mydealz-RSS holen & parsen (°-Hotness, Preis, Händler, Rabatt) |
+| `schnaeppchen.py` | CLI: Quellen → Analyse → Kuratierung → Konsole + Dashboard |
+| `mydealz.py` | Deal-Communities (RSS + Volltextsuche), Pepper + WordPress-Feeds |
+| `shop.py` | Feinkost-/Seafood-Shop-Scraper (Sitemap → Produktseiten, Name+Preis) |
 | `sweetspots.py` | Heuristik-Engine: *warum* etwas strukturell zu billig ist |
 | `analyze.py` | Rabatt, Hotness, Wochentags-Muster, Interessen-Match, Deal-Score |
 | `sources.py` | Offline-Demo-Datengenerator (+ generischer JSON-Fetcher) |
