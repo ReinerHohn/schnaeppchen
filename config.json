@@ -26,6 +26,14 @@
       "weight": 1.7
     },
     {
+      "name": "Exklusive Genuss-Events",
+      "keywords": ["degustationsdinner", "menüabend", "menuabend", "gala-dinner", "galadinner", "dinner & wine", "food & wine", "weinprobe", "weinverkostung", "weindegustation", "champagner-tasting", "whisky-tasting", "gin-tasting", "kochkurs", "kochevent", "chef's table", "pop-up dinner", "supper club", "gourmet-festival", "genussmesse", "table d'hôte", "winzerdinner", "trüffelabend", "austern-tasting"],
+      "category": "Event",
+      "max_price": 250,
+      "min_discount_pct": 12,
+      "weight": 1.7
+    },
+    {
       "name": "Exklusiv & Luxus",
       "keywords": ["kaviar", "trüffel", "wagyu", "dry aged", "champagner", "luxus", "suite", "spa", "wellness", "first class", "business class", "private dining", "degustation", "grand hotel", "boutique hotel"],
       "category": "",
@@ -133,10 +141,49 @@
         "sitemap": "https://www.gourmetfleisch.de/sitemap.xml",
         "currency": "€",
         "encoding": "iso-8859-1"
+      },
+      {
+        "name": "viani",
+        "sitemap": "https://www.viani.de/sitemap.xml",
+        "currency": "€",
+        "max_products": 60,
+        "match": ["gambero", "gamberi", "scampi", "astice", "hummer", "languste",
+                  "kaviar", "caviale", "bottarga", "vongole", "austern", "jakobs",
+                  "king-crab", "koenigskrabbe", "trueffel", "tartufo"]
+      },
+      {
+        "name": "bosfood",
+        "sitemap": "https://www.bosfood.de/sitemap.xml",
+        "currency": "€",
+        "max_products": 80,
+        "require": "/produkt/",
+        "match": ["kaviar", "trueffel", "tartufo", "hummer", "languste", "austern",
+                  "jakobs", "wagyu", "koenigskrabbe", "king-crab", "bottarga",
+                  "gambero", "gamberi", "ricci-di-mare", "seeigel", "pata-negra"],
+        "exclude": ["buecher", "printmedien", "poster", "magazine", "kuechenposter",
+                    "non-food", "hardware", "grillzubehoer", "verpackung"]
+      },
+      {
+        "name": "gustini",
+        "sitemap": "https://www.gustini.de/sitemap.xml",
+        "currency": "€",
+        "max_products": 50,
+        "match": ["tartufo", "trueffel", "caviale", "kaviar", "bottarga", "astice",
+                  "gambero", "gamberi", "ricci-di-mare", "seeigel", "wagyu", "culatello",
+                  "king-crab", "pata-negra", "jamon", "aceto-balsamico"]
+      },
+      {
+        "name": "eataly",
+        "sitemap": "https://www.eataly.net/sitemap.xml",
+        "currency": "€",
+        "max_products": 40,
+        "match": ["tartufo", "caviale", "astice", "gambero", "gamberi", "ricci-di-mare",
+                  "king-crab", "bottarga", "culatello", "pata-negra", "wagyu"]
       }
     ],
     "feeds": [
-      "restaurant", "reisen", "urlaub", "hotel", "fluege",
+      "restaurant", "wein", "kochen", "getraenke", "lebensmittel",
+      "reisen", "urlaub", "hotel", "fluege",
       "konzerte", "musical", "pj_reisen", "pj_urlaub",
       "preispirat_ch", "urlaubspiraten", "reisetiger"
     ],
@@ -145,7 +192,9 @@
       "kaviar", "trüffel", "wagyu", "dry aged",
       "glacier express", "bernina express", "jungfraujoch", "titlis", "matterhorn", "gornergrat",
       "käsefondue", "fondue set", "raclette set",
-      "michelin", "degustationsmenü", "chef's table", "grand hotel"
+      "michelin", "degustationsmenü", "chef's table", "grand hotel",
+      "weinprobe", "weinverkostung", "kochkurs", "gala-dinner", "champagner",
+      "menüabend", "whisky tasting", "gourmet festival"
     ]
   }
 }

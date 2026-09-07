@@ -170,8 +170,10 @@ def analyze_offer(offer, history, interests, settings, sweetspots=None):
     )
     hit_exclude = next((kw for kw in exclude if keyword_matches(kw, ex_text)), None)
     is_excluded = hit_exclude is not None
-    # Relevant = trifft ein Interesse oder einen Sweet-Spot UND ist nicht geblockt.
-    is_relevant = (bool(interest) or bool(sweet)) and not is_excluded
+    # Produkte aus bewusst konfigurierten Feinkost-Shops gelten als relevant.
+    is_shop = str(offer.get("group", "")).startswith("feinkost:")
+    # Relevant = Interesse ODER Sweet-Spot ODER Feinkost-Shop, und nicht geblockt.
+    is_relevant = (bool(interest) or bool(sweet) or is_shop) and not is_excluded
 
     # Community-Hotness -> 0..1 (500° gilt als "top").
     temp = offer.get("temperature")
@@ -207,6 +209,8 @@ def analyze_offer(offer, history, interests, settings, sweetspots=None):
         ),
         3,
     )
+    if is_shop:  # kuratierte Feinkost bekommt einen soliden Sockel
+        score = max(score, 0.35)
 
     result = dict(offer)
     result.update(

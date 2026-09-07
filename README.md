@@ -14,7 +14,9 @@ Arten von Treffern hervor:
    - **🏷 Abverkauf / Restposten** – Lager/Auslauf muss raus.
    - **🌾 Saison-Schwemme** und **🧮 Sammeldeal / Menge**.
 3. **🎯 Deine Interessen** – Genuss-Zugfahrten (Glacier Express …), günstiges
-   Sterne-/Gourmet-Essen, Schlager-Konzerttickets, Delikatessen, Touri-Erlebnisse.
+   Sterne-/Gourmet-Essen, exklusive Genuss-Events (Degustationsdinner, Wein-/
+   Champagner-Verkostungen, Kochkurse, Menü-/Winzerabende), Schlager-Konzerttickets,
+   Delikatessen (Hummer/Krabbe/Kaviar/Trüffel), Touri-Erlebnisse.
 4. **📅 Wochentags-Schnäppchen** – Mo–Fr günstiger als am Wochenende
    *(nur mit eigener Preishistorie, siehe Demo-Modus)*.
 
@@ -45,11 +47,18 @@ Drei Arten von Quellen:
   reisetiger.de (Reise-Deals).
 - **Aktive Suche** über die mydealz-Volltextsuche (Nischen).
 - **Feinkost-/Seafood-Shops** (`config.json → settings.shops`): echte Hummer/
-  Krabbe/Langusten-Produkte direkt aus Gourmet-Shops. Der Scraper liest die
-  Shop-Sitemap, filtert Krustentier-/Delikatessen-URLs und parst je Produktseite
-  Name + Preis + Bild (server-gerendert). Standardmäßig **gourmetfleisch.de**
-  (Shopware, iso-8859-1). Weitere Shops per Eintrag `{name, sitemap, currency,
-  encoding, match}` – kein Code nötig.
+  Krabbe/Langusten-/Kaviar-/Trüffel-Produkte direkt aus Gourmet-Shops. Der Scraper
+  liest die Shop-Sitemap, filtert Delikatessen-URLs und parst je Produktseite
+  Name + Preis + Bild (server-gerendert). Erkennt Preise mit Währung vor *oder*
+  nach der Zahl (`47,70 EUR`, `€ 26,97`) und Sitemap-Indizes (inkl. `.gz`).
+  Mit dabei: **gourmetfleisch.de** (Shopware), **viani.de**, **bosfood.de** (JTL,
+  Kaviar/Trüffel), **gustini.de** & **eataly.net** (ital. Delikatessen). Weitere
+  Shops per Eintrag `{name, sitemap, currency, encoding, match, exclude, require}`
+  – kein Code nötig:
+  - `match` — URL muss einen dieser Substrings enthalten (Delikatessen-Filter).
+  - `exclude` — URL darf keinen enthalten (Bücher, Blog, Non-Food …).
+  - `require` — URL *muss* diesen Substring enthalten (z.B. `/produkt/`, um
+    Kategorie-/Landing-Seiten mit Fehlpreisen auszublenden).
 
 **Feeds** (`config.json → settings.feeds`) — Presets in `mydealz.py → FEEDS`:
 

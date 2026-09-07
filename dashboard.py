@@ -50,8 +50,12 @@ def _card(a, cur):
             f'<span class="b sweet" title="{_esc(sw["rationale"])}">'
             f'{sw["icon"]} {_esc(sw["name"])}</span>'
         )
-    if a.get("group") and a.get("group") not in ("custom", "hot", "new", "trending"):
-        badges.append(f'<span class="b grp">{_esc(a["group"])}</span>')
+    group = a.get("group") or ""
+    is_shop = str(group).startswith("feinkost:")
+    if is_shop:  # 'feinkost:bosfood' -> '🦞 bosfood'
+        badges.append(f'<span class="b shop">\U0001F99E {_esc(group.split(":", 1)[1])}</span>')
+    elif group and group not in ("custom", "hot", "new", "trending"):
+        badges.append(f'<span class="b grp">{_esc(group)}</span>')
 
     img = a.get("image")
     thumb = (
@@ -71,7 +75,8 @@ def _card(a, cur):
         f'data-hot="{1 if a.get("is_hot") else 0}" '
         f'data-weekday="{1 if a.get("is_weekday_deal") else 0}" '
         f'data-sweet="{1 if a.get("sweetspots") else 0}" '
-        f'data-deal="{1 if a.get("is_schnaeppchen") else 0}"'
+        f'data-deal="{1 if a.get("is_schnaeppchen") else 0}" '
+        f'data-shop="{1 if is_shop else 0}"'
     )
     return (
         f'<a class="card" href="{url}" target="_blank" rel="noopener" {data}>'
@@ -97,9 +102,11 @@ def _summary(analyzed, settings):
     n_int = sum(1 for a in analyzed if a.get("interest"))
     n_hot = sum(1 for a in analyzed if a.get("is_hot"))
     n_sweet = sum(1 for a in analyzed if a.get("sweetspots"))
+    n_shop = sum(1 for a in analyzed if str(a.get("group", "")).startswith("feinkost:"))
     return "".join([
         card(len(analyzed), "Deals gefunden"),
         card(n_int, "Zu deinen Interessen", "\U0001F3AF passend"),
+        card(n_shop, "Delikatessen-Shops", "\U0001F99E Hummer · Kaviar · Trüffel"),
         card(n_sweet, "Sweet Spots", "\U0001F4A1 strukturell zu billig"),
         card(n_hot, "Heiße Deals", "\U0001F525 stark hochgevotet"),
     ])
@@ -190,6 +197,7 @@ _TEMPLATE = """<!DOCTYPE html>
   .b.int {{ background:#20293a; color:var(--int); }}
   .b.hot {{ background:var(--hot); color:#fff; }}
   .b.grp {{ background:#212a24; color:#7bd88f; }}
+  .b.shop {{ background:#3a2618; color:#ffa94d; }}
   .b.sweet {{ background:#2a2140; color:#b37feb; cursor:help; }}
   .title {{ font-size:14px; line-height:1.3; font-weight:600; }}
   .price {{ font-size:19px; font-weight:700; color:var(--accent); margin-top:auto; }}
@@ -218,6 +226,7 @@ _TEMPLATE = """<!DOCTYPE html>
     <button data-f="interest">\U0001F3AF Meine Interessen</button>
     <button data-f="sweet">\U0001F4A1 Sweet Spots</button>
     <button data-f="deal">\U0001F525 Nur Schnäppchen</button>
+    <button data-f="shop">\U0001F99E Delikatessen-Shops</button>
     <button data-f="weekday">\U0001F4C5 Wochentags billiger</button>
   </div>
 
