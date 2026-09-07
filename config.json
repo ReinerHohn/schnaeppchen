@@ -197,13 +197,38 @@
                   "winzer", "degustation", "backkurs", "patisserie", "schokolade",
                   "tapas", "candle-light", "krimidinner"],
         "exclude": ["gutschein", "geschenkbox", "wertgutschein"]
+      },
+      {
+        "name": "jochen-schweizer",
+        "sitemap": "https://www.jochen-schweizer.de/assets/sitemap_index.xml",
+        "currency": "€",
+        "kind": "event",
+        "category": "Event",
+        "max_products": 60,
+        "require": ["/p/", "/l/"],
+        "match": ["kochkurs", "weinprob", "weinverkost", "whisky", "rumtasting",
+                  "gin-tasting", "gin-verkost", "cocktailkurs", "sushikurs",
+                  "grillkurs", "menue", "gourmet", "dinner", "champagner",
+                  "degustation", "braukurs", "tapas", "patisserie", "schokolade",
+                  "kaffee-tasting", "krimidinner"],
+        "exclude": ["gutschein", "wertgutschein"]
+      },
+      {
+        "name": "otto-gourmet",
+        "sitemap": "https://www.otto-gourmet.de/media/sitemap/sitemap.xml",
+        "currency": "€",
+        "max_products": 40,
+        "match": ["wagyu", "dry-aged", "kobe", "tomahawk", "entrecote", "iberico",
+                  "gambas", "hummer", "kaviar", "langusten", "caviar", "pata-negra"],
+        "exclude": ["at-home", "@home", "dry-aging", "/fleisch/", "rezept",
+                    "zubehoer", "gutschein", "box/"]
       }
     ],
     "feeds": [
       "restaurant", "wein", "kochen", "getraenke", "lebensmittel",
       "reisen", "urlaub", "hotel", "fluege",
       "konzerte", "musical", "pj_reisen", "pj_urlaub",
-      "preispirat_ch", "urlaubspiraten", "reisetiger"
+      "preispirat_ch", "urlaubspiraten", "reisetiger", "traveldealz"
     ],
     "searches": [
       "königskrabbe", "langusten", "kaisergranat", "austern", "jakobsmuscheln",

@@ -48,6 +48,7 @@ WP_FEEDS = {
     "preispirat_ch": {"url": "https://www.preispirat.ch/feed/", "currency": "CHF"},
     "urlaubspiraten": {"url": "https://www.urlaubspiraten.de/feed", "currency": "€"},
     "reisetiger": {"url": "https://www.reisetiger.net/feed", "currency": "€"},
+    "traveldealz": {"url": "https://travel-dealz.de/feed/", "currency": "€"},
 }
 
 # Suche aktiv nach diesen Begriffen (mydealz-Volltextsuche, HTML). Für Nischen

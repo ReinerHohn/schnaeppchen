@@ -58,7 +58,7 @@ Drei Arten von Quellen:
 
 - **Deal-Communities** (Pepper, gleicher Parser): mydealz.de (DE) + preisjaeger.at
   (AT, `pj_`) — plus WordPress-Blogs preispirat.ch (CH, CHF), urlaubspiraten.de,
-  reisetiger.de (Reise-Deals).
+  reisetiger.de, travel-dealz.de (Reise-Deals).
 - **Aktive Suche** über die mydealz-Volltextsuche (Nischen).
 - **Feinkost-/Seafood-Shops** (`config.json → settings.shops`): echte Hummer/
   Krabbe/Langusten-/Kaviar-/Trüffel-Produkte direkt aus Gourmet-Shops. Der Scraper
@@ -66,7 +66,8 @@ Drei Arten von Quellen:
   Name + Preis + Bild (server-gerendert). Erkennt Preise mit Währung vor *oder*
   nach der Zahl (`47,70 EUR`, `€ 26,97`) und Sitemap-Indizes (inkl. `.gz`).
   Mit dabei: **gourmetfleisch.de** (Shopware), **viani.de**, **bosfood.de** (JTL,
-  Kaviar/Trüffel), **gustini.de** & **eataly.net** (ital. Delikatessen). Weitere
+  Kaviar/Trüffel), **gustini.de** & **eataly.net** (ital. Delikatessen),
+  **otto-gourmet.de** (Wagyu/Kobe/Dry-Aged/Kaviar). Weitere
   Shops per Eintrag `{name, sitemap, currency, encoding, match, exclude, require,
   kind, category}` – kein Code nötig:
   - `match` — URL muss einen dieser Substrings enthalten (Delikatessen-Filter).
@@ -77,8 +78,8 @@ Drei Arten von Quellen:
     Quelle (Gruppe `event:<name>` statt `feinkost:<name>`).
 - **Genuss-Event-Shops** (gleicher Scraper, `kind:"event"`): buchbare Erlebnisse –
   Kochkurse, Wein-/Whisky-/Gin-Verkostungen, Menü-/Dinner-Abende. Standardmäßig
-  **mydays.de** (`require:"/p/"` = nur echte Event-Seiten). Im Dashboard eigener
-  Filter **🍽️ Genuss-Events**.
+  **mydays.de** & **jochen-schweizer.de** (`require` grenzt via `/p/`+`/l/` auf
+  echte Event-Seiten ein). Im Dashboard eigener Filter **🍽️ Genuss-Events**.
 
 **Feeds** (`config.json → settings.feeds`) — Presets in `mydealz.py → FEEDS`:
 

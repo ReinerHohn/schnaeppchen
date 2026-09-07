@@ -74,6 +74,8 @@ def parse_product(html_doc, url, source, currency="€", today=None,
         today = datetime.date.today()
     h1 = re.search(r"<h1[^>]*>(.*?)</h1>", html_doc, re.S)
     name = html.unescape(re.sub("<[^>]+>", "", h1.group(1))).strip() if h1 else None
+    if name:
+        name = re.sub(r"\s+", " ", name)  # Zeilenumbrüche/Tabs aus mehrzeiligem H1 glätten
     if not name:
         return None
 
@@ -116,18 +118,20 @@ def parse_sitemap(xml, match=None, exclude=None, require=None):
     match:   URL muss einen dieser Substrings enthalten (Positiv-Filter).
     exclude: URL darf keinen dieser Substrings enthalten – blendet Landing-,
              Blog- und Non-Food-Seiten aus (z.B. 'buecher', 'magazin').
-    require: URL MUSS diesen Substring enthalten – grenzt auf echte Produktseiten
-             ein (z.B. '/produkt/' bei Shops, deren Kategorie-Seiten sonst als
-             Fehlpreis durchrutschen).
+    require: URL MUSS diesen Substring (oder EINEN aus einer Liste) enthalten –
+             grenzt auf echte Produkt-/Detailseiten ein (z.B. '/produkt/', oder
+             ['/p/', '/l/'] bei Event-Shops), deren Übersichtsseiten sonst als
+             Fehlpreis durchrutschen.
     """
     match = match or DEFAULT_MATCH
     urls = re.findall(r"<loc>\s*([^<]+?)\s*</loc>", xml)
     rx = re.compile("|".join(re.escape(m) for m in match), re.I)
     ex = re.compile("|".join(re.escape(x) for x in exclude), re.I) if exclude else None
+    req = [require] if isinstance(require, str) else require  # str oder Liste (any-of)
     return [
         u for u in urls
         if rx.search(u)
-        and (require is None or require in u)
+        and (not req or any(r in u for r in req))
         and not (ex and ex.search(u))
     ]
 
