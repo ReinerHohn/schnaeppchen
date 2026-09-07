@@ -34,6 +34,22 @@
       "weight": 1.4
     },
     {
+      "name": "Invasive Delikatessen (Plage = billig)",
+      "keywords": ["königskrabbe", "blaukrabbe", "blue crab", "wollhandkrabbe", "signalkrebs", "nutria", "rotfeuerfisch", "wels"],
+      "category": "Delikatessen",
+      "max_price": 120,
+      "min_discount_pct": 10,
+      "weight": 1.5
+    },
+    {
+      "name": "Bruchware & B-Ware",
+      "keywords": ["bruchware", "b-ware", "retoure", "aussteller", "mängelexemplar", "refurbished", "generalüberholt", "2. wahl"],
+      "category": "",
+      "max_price": 500,
+      "min_discount_pct": 15,
+      "weight": 1.2
+    },
+    {
       "name": "Touri-Erlebnisse extrem billig",
       "keywords": ["therme", "bootstour", "städtetrip", "erlebnis", "tour", "seilbahn", "eintritt"],
       "category": "Erlebnis",
@@ -42,11 +58,51 @@
       "weight": 1.2
     }
   ],
+  "sweetspots": [
+    {
+      "name": "Invasive Delikatesse",
+      "icon": "🦀",
+      "keywords": ["königskrabbe", "koenigskrabbe", "king crab", "blaukrabbe", "blue crab", "wollhandkrabbe", "signalkrebs", "sumpfkrebs", "nutria", "rotfeuerfisch", "lionfish", "wels", "wildschwein"],
+      "rationale": "Invasive Art / Plage: Überangebot, Verzehr ökologisch erwünscht → sollte günstig sein.",
+      "boost": 0.30
+    },
+    {
+      "name": "Bruchware / B-Ware",
+      "icon": "📦",
+      "keywords": ["bruch", "bruchware", "b-ware", "b ware", "2. wahl", "zweite wahl", "retoure", "open box", "geöffnet", "aussteller", "vorführ", "mängelexemplar", "kosmetisch", "kratzer", "generalüberholt", "refurbished"],
+      "rationale": "Nur optischer Mangel, voll funktionsfähig → deutlich unter Neupreis.",
+      "boost": 0.22
+    },
+    {
+      "name": "Abverkauf / Restposten",
+      "icon": "🏷",
+      "keywords": ["abverkauf", "ausverkauf", "räumung", "restposten", "überbestand", "lagerräumung", "auslauf", "auslaufmodell", "sonderposten", "letzte chance", "clearance"],
+      "rationale": "Lager/Auslauf muss raus → Preis fällt unter Marktwert.",
+      "boost": 0.18
+    },
+    {
+      "name": "Saison-Schwemme",
+      "icon": "🌾",
+      "keywords": ["schwemme", "überschuss", "erntefrisch", "hauptsaison", "überproduktion"],
+      "rationale": "Saisonales Überangebot drückt den Preis.",
+      "boost": 0.14
+    },
+    {
+      "name": "Sammeldeal / Menge",
+      "icon": "🧮",
+      "keywords": ["sammeldeal", "mengenrabatt", "staffelpreis", "großpack", "palette", "vorratspack", "multipack", "bundle"],
+      "rationale": "Stückpreis kippt durch Menge/Bündel.",
+      "boost": 0.10
+    }
+  ],
   "settings": {
     "currency": "€",
     "history_days": 90,
     "min_deal_score": 0.25,
     "weekday_flag_pct": 8.0,
-    "top_n": 25
+    "hot_temp_threshold": 200,
+    "top_n": 60,
+    "source": "mydealz",
+    "feeds": ["hot", "new", "reisen", "urlaub", "lebensmittel", "konzerte"]
   }
 }

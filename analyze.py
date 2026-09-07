@@ -108,34 +108,77 @@ def match_interest(offer, interests):
 # --------------------------------------------------------------------------- #
 # Gesamt-Bewertung eines Angebots
 # --------------------------------------------------------------------------- #
-def analyze_offer(offer, history, interests, settings):
+def analyze_offer(offer, history, interests, settings, sweetspots=None):
     """Ein Angebot komplett bewerten.
 
-    history: dict product_key -> Liste von {"date","price"}.
+    Funktioniert für zwei Fälle:
+    * Demo/eigene Historie -> `history[key]` liefert übliche Preise & Wochentag-Muster.
+    * Live-Quelle (z.B. mydealz) -> das Angebot bringt selbst mit:
+        - `temperature`   community-Hotness (°), Haupt-"geil"-Signal
+        - `original_price` bzw. `discount_pct` falls "statt X€ / -Y%" bekannt.
+
     Rückgabe: angereichertes dict (Original + Kennzahlen + Flags + deal_score).
     """
     key = product_key(offer)
     hist = history.get(key, [])
+    price = offer.get("price")
+
+    # 'Üblicher' Preis: Median der Historie, sonst der mitgelieferte Originalpreis.
     typ = typical_price(hist)
-    disc = discount_pct(offer["price"], typ)
+    if typ is None and offer.get("original_price"):
+        typ = float(offer["original_price"])
+
+    # Rabatt: explizit mitgeliefert schlägt berechnet.
+    if offer.get("discount_pct") is not None:
+        disc = round(float(offer["discount_pct"]), 1)
+    else:
+        disc = discount_pct(price, typ)
+
     wstats = weekday_stats(hist)
+    saving = wstats["weekday_saving_pct"] or 0.0
+    is_weekday_deal = saving >= settings.get("weekday_flag_pct", 8.0)
+
     interest, matched, hits = match_interest(offer, interests)
 
-    weekday_flag_pct = settings.get("weekday_flag_pct", 8.0)
-    saving = wstats["weekday_saving_pct"] or 0.0
-    is_weekday_deal = saving >= weekday_flag_pct
+    # Sweet-Spot-Heuristiken: strukturelle Gründe für einen zu niedrigen Preis.
+    from sweetspots import match_sweetspots  # lokal, um Import-Zyklus zu vermeiden
+    sweet = match_sweetspots(offer, sweetspots)
+    sweet_boost = min(sum(s["boost"] for s in sweet), 0.5)
 
-    # Schnäppchen: passt zu einem Interesse, Preis im Rahmen, Rabatt hoch genug.
+    # Community-Hotness -> 0..1 (500° gilt als "top").
+    temp = offer.get("temperature")
+    hot_threshold = settings.get("hot_temp_threshold", 200)
+    hotness = max(0.0, min((temp or 0) / 500.0, 1.0)) if temp is not None else 0.0
+    community_hot = temp is not None and temp >= hot_threshold
+
+    # Schnäppchen: passt zu einem Interesse, Preis im Rahmen und entweder hoher
+    # Rabatt ODER von der Community stark hochgevotet.
     min_disc = interest.get("min_discount_pct", 20) if interest else 20
     max_price = interest.get("max_price") if interest else None
-    price_ok = (max_price is None) or (offer["price"] <= max_price)
-    is_schnaeppchen = bool(interest) and price_ok and disc >= min_disc
+    price_ok = (max_price is None) or (price is None) or (price <= max_price)
+    # Schnäppchen, wenn Preis passt UND entweder (Interesse + hoher Rabatt/hot)
+    # ODER ein struktureller Sweet-Spot (Bruchware, invasiv, Restposten ...) greift.
+    is_schnaeppchen = price_ok and (
+        (bool(interest) and (disc >= min_disc or community_hot)) or bool(sweet)
+    )
 
-    # Deal-Score: Rabatt (0..1) + halber Wochentags-Bonus, gewichtet mit Interesse.
+    # Deal-Score aus vier Signalen, gewichtet mit der Wichtigkeit des Interesses:
+    #   base       Rabatt (oft nur bei Global-/Aktions-Deals bekannt)
+    #   hotness    Community-Temperatur (nur globale Feeds)
+    #   relevance  wie gut es zu einem Interesse passt (Keyword-Treffer)
+    #   weekday    Mo-Fr-Bonus (nur mit eigener Historie)
     base = max(0.0, min(disc / 100.0, 1.0))
+    relevance = min(hits, 3) / 3.0 if interest else 0.0
     weekday_bonus = max(0.0, saving / 100.0) * 0.5
-    weight = interest.get("weight", 1.0) if interest else 0.4
-    score = round(min((base + weekday_bonus) * weight, 1.0), 3)
+    weight = interest.get("weight", 1.0) if interest else 0.6
+    score = round(
+        min(
+            (0.45 * base + 0.35 * hotness + 0.4 * relevance + weekday_bonus + sweet_boost)
+            * weight,
+            1.0,
+        ),
+        3,
+    )
 
     result = dict(offer)
     result.update(
@@ -143,10 +186,13 @@ def analyze_offer(offer, history, interests, settings):
             "product_key": key,
             "typical_price": round(typ, 2) if typ is not None else None,
             "discount_pct": disc,
+            "temperature": temp,
+            "is_hot": community_hot,
             "weekday": wstats,
             "is_weekday_deal": is_weekday_deal,
             "interest": interest["name"] if interest else None,
             "matched_keywords": matched,
+            "sweetspots": sweet,
             "is_schnaeppchen": is_schnaeppchen,
             "deal_score": score,
             "history": hist,
@@ -155,8 +201,10 @@ def analyze_offer(offer, history, interests, settings):
     return result
 
 
-def analyze_all(offers, history, interests, settings):
+def analyze_all(offers, history, interests, settings, sweetspots=None):
     """Alle Angebote bewerten und nach Deal-Score absteigend sortieren."""
-    analyzed = [analyze_offer(o, history, interests, settings) for o in offers]
+    analyzed = [
+        analyze_offer(o, history, interests, settings, sweetspots) for o in offers
+    ]
     analyzed.sort(key=lambda r: r["deal_score"], reverse=True)
     return analyzed

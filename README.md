@@ -1,26 +1,54 @@
 # 🏷️ Schnäppchen-Jäger
 
-Durchsucht Angebote nach **deinen Interessen** und hebt zwei Arten von Deals hervor:
+Durchsucht **echte, aktuelle Angebote** (Live von [mydealz.de](https://www.mydealz.de),
+Deutschlands größter Schnäppchen-Community) nach **deinen Interessen** und hebt vier
+Arten von Treffern hervor:
 
-1. **Echte Schnäppchen** – Artikel, die gerade *viel billiger als üblich* sind
-   (Rabatt gegenüber dem typischen Preis der letzten Wochen).
-2. **Wochentags-Schnäppchen** – Artikel, die *unter der Woche deutlich günstiger*
-   sind als am Wochenende. Genau das, was du wolltest: „Highlights, die unter der
-   Woche billiger sind".
+1. **🔥 Echte Schnäppchen** – gerade *viel billiger als üblich* (hoher Rabatt bzw.
+   von der Community stark hochgevotet).
+2. **💡 Sweet Spots** – *strukturell zu billig*. Nicht nur „günstig", sondern mit
+   wirtschaftlichem Grund, warum der Preis unter dem Wert liegt:
+   - **🦀 Invasive Delikatesse** – Königskrabbe, Blaukrabbe, Wollhandkrabbe, Signalkrebs,
+     Nutria, Wels … sind eine Plage → Überangebot, Verzehr ökologisch erwünscht.
+   - **📦 Bruchware / B-Ware** – nur optischer Mangel, voll funktionsfähig.
+   - **🏷 Abverkauf / Restposten** – Lager/Auslauf muss raus.
+   - **🌾 Saison-Schwemme** und **🧮 Sammeldeal / Menge**.
+3. **🎯 Deine Interessen** – Genuss-Zugfahrten (Glacier Express …), günstiges
+   Sterne-/Gourmet-Essen, Schlager-Konzerttickets, Delikatessen, Touri-Erlebnisse.
+4. **📅 Wochentags-Schnäppchen** – Mo–Fr günstiger als am Wochenende
+   *(nur mit eigener Preishistorie, siehe Demo-Modus)*.
 
-Du gibst deine Interessen in `config.json` an (Stichwörter, Kategorie, Preisober­grenze,
-Mindest­rabatt) – das Tool sucht, bewertet und baut ein Dashboard.
+Jeder Deal bekommt einen **Deal-Score** aus vier Signalen: Rabatt · Community-Hotness (°) ·
+Interessen-Relevanz · Sweet-Spot-Boost.
 
 ## Schnellstart
 
 ```bash
-python3 schnaeppchen.py           # Demo-Daten: Konsolen-Report + dashboard.html
-python3 schnaeppchen.py --open    # Dashboard direkt im Browser öffnen
-python3 schnaeppchen.py --json    # Ergebnis als JSON (zum Weiterverarbeiten)
+python3 schnaeppchen.py                 # LIVE von mydealz -> Konsole + dashboard.html
+python3 schnaeppchen.py --open          # Dashboard direkt im Browser
+python3 schnaeppchen.py --feeds hot,lebensmittel,reisen,konzerte
+python3 schnaeppchen.py --source demo   # Offline-Demo (mit Preisverlauf-Charts)
+python3 schnaeppchen.py --json          # Ergebnis als JSON
 ```
 
 Keine Abhängigkeiten – **reine Python-Standardbibliothek** (Python 3.9+).
-Das Dashboard ist eine einzelne, self-contained `dashboard.html` (Chart.js via CDN).
+Das Dashboard ist eine einzelne, self-contained `dashboard.html` (Karten-Grid mit
+Bildern, °-Hotness, Filter-Buttons; Chart.js via CDN). Ohne Netz fällt das Tool
+automatisch auf Demo-Daten zurück.
+
+## Datenquelle & Feeds
+
+`config.json → settings.feeds` wählt die mydealz-RSS-Feeds:
+
+| Feed | Inhalt |
+|------|--------|
+| `hot`, `new`, `trending` | globale Top-/frische Deals (mit °-Hotness) |
+| `reisen`, `urlaub` | Reise-/Urlaubs-Schnäppchen (Glacier Express, Trips) |
+| `lebensmittel` | Essen & Delikatessen (Hummer, Krabbe, Fondue) |
+| `konzerte` | Konzert-Tickets (Schlager) |
+
+Weitere mydealz-Gruppen einfach als `gruppe/<slug>`-URL oder Preset ergänzen
+(`mydealz.py → FEEDS`).
 
 ## Interessen anpassen
 
@@ -55,23 +83,25 @@ Für jeden Artikel wird der **Median** der Preishistorie (Standard: 90 Tage) als
 Abweichung des aktuellen Preises davon. Der **Deal-Score** kombiniert Rabatt +
 Wochentags-Bonus, gewichtet mit der Wichtigkeit des Interesses.
 
-## Echte Quellen anbinden
+## Sweet Spots anpassen
 
-`sources.py` enthält neben der Demo einen generischen `rss_json_source(url, mapping)`,
-der eine JSON-Angebotsliste holt und Felder mappt (z. B. `{"title":"name","price":"amount"}`).
-Die Preishistorie kann dann fortlaufend in einer eigenen JSON-Datei gepflegt werden,
-damit „billiger als üblich" und der Wochentags-Effekt über die Zeit erkannt werden.
+`config.json → sweetspots` ist eine editierbare Liste von Heuristiken. Jede hat
+`keywords`, eine `rationale` (Begründung, erscheint als Tooltip) und einen `boost`
+auf den Score. Neue Sweet Spots (z. B. weitere invasive Arten oder „Mindesthaltbarkeit
+bald") einfach ergänzen.
 
 ## Aufbau
 
 | Datei | Zweck |
 |-------|-------|
 | `schnaeppchen.py` | CLI: Quelle → Analyse → Konsole + Dashboard |
-| `analyze.py` | Preis-Statistik, Rabatt, Wochentags-Muster, Interessen-Match, Score |
-| `sources.py` | Demo-Datengenerator + optionaler echter Fetcher |
-| `dashboard.py` | Baut die self-contained `dashboard.html` |
-| `config.json` | Deine Interessen & Schwellen |
-| `tests/` | `python3 -m unittest discover tests` |
+| `mydealz.py` | Live-Quelle: mydealz-RSS holen & parsen (°-Hotness, Preis, Händler, Rabatt) |
+| `sweetspots.py` | Heuristik-Engine: *warum* etwas strukturell zu billig ist |
+| `analyze.py` | Rabatt, Hotness, Wochentags-Muster, Interessen-Match, Deal-Score |
+| `sources.py` | Offline-Demo-Datengenerator (+ generischer JSON-Fetcher) |
+| `dashboard.py` | Baut die self-contained `dashboard.html` (Karten-Grid) |
+| `config.json` | Interessen · Sweet Spots · Feeds · Schwellen |
+| `tests/` | `python3 -m unittest discover tests` (21 Tests, netzfrei) |
 
 ## Tests
 
