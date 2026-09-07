@@ -179,6 +179,21 @@
         "max_products": 40,
         "match": ["tartufo", "caviale", "astice", "gambero", "gamberi", "ricci-di-mare",
                   "king-crab", "bottarga", "culatello", "pata-negra", "wagyu"]
+      },
+      {
+        "name": "mydays",
+        "sitemap": "https://www.mydays.de/sitemap.xml",
+        "currency": "€",
+        "kind": "event",
+        "category": "Event",
+        "max_products": 60,
+        "require": "/p/",
+        "match": ["kochkurs", "weinprob", "weindegust", "weinverkost", "whisky",
+                  "gin-tasting", "gin-verkost", "cocktailkurs", "sushikurs",
+                  "grillkurs", "menue", "gourmet", "dinner", "champagner",
+                  "winzer", "degustation", "backkurs", "patisserie", "schokolade",
+                  "tapas", "candle-light", "krimidinner"],
+        "exclude": ["gutschein", "geschenkbox", "wertgutschein"]
       }
     ],
     "feeds": [

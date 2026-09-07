@@ -63,8 +63,13 @@ def _content_price(text):
         return None
 
 
-def parse_product(html_doc, url, source, currency="€", today=None):
-    """Eine Produktseite -> Angebots-dict (oder None, wenn kein Preis/Name)."""
+def parse_product(html_doc, url, source, currency="€", today=None,
+                  category="Delikatessen", kind="feinkost"):
+    """Eine Produktseite -> Angebots-dict (oder None, wenn kein Preis/Name).
+
+    category/kind steuern die Einordnung: Feinkost-Produkt (Standard) ODER
+    Genuss-Event (category='Event', kind='event') -> group 'event:<source>'.
+    """
     if today is None:
         today = datetime.date.today()
     h1 = re.search(r"<h1[^>]*>(.*?)</h1>", html_doc, re.S)
@@ -73,11 +78,11 @@ def parse_product(html_doc, url, source, currency="€", today=None):
         return None
 
     price = None
-    for kind, pat in _PRICE_SELECTORS:
+    for sel_kind, pat in _PRICE_SELECTORS:
         m = re.search(pat, html_doc)
         if not m:
             continue
-        price = _display_price(m.group(1)) if kind == "display" else _content_price(m.group(1))
+        price = _display_price(m.group(1)) if sel_kind == "display" else _content_price(m.group(1))
         if price:  # >0 und nicht None
             break
         price = None
@@ -90,12 +95,12 @@ def parse_product(html_doc, url, source, currency="€", today=None):
     return {
         "title": name,
         "brand": source,
-        "category": "Delikatessen",
+        "category": category,
         "price": price,
         "currency": currency,
         "url": url,
         "source": source,
-        "group": f"feinkost:{source}",
+        "group": f"{kind}:{source}",
         "temperature": None,
         "original_price": None,
         "discount_pct": None,
@@ -158,12 +163,15 @@ def _sitemap_urls(sitemap_url, timeout):
 def fetch_shop(cfg, timeout=20, today=None, max_products=30):
     """Einen Shop scrapen: Sitemap -> Seafood-URLs -> Produktseiten parsen.
 
-    cfg: {name, sitemap, currency?, match?, exclude?, encoding?}.
+    cfg: {name, sitemap, currency?, match?, exclude?, require?, encoding?,
+          category?, kind?}. category/kind='Event'/'event' -> Genuss-Event-Shop.
     Rückgabe: (offers, count).
     """
     name = cfg["name"]
     currency = cfg.get("currency", "€")
     cap = cfg.get("max_products", max_products)
+    category = cfg.get("category", "Delikatessen")
+    kind = cfg.get("kind", "feinkost")
     try:
         xml = _sitemap_urls(cfg["sitemap"], timeout)
     except Exception as exc:  # noqa: BLE001
@@ -175,7 +183,7 @@ def fetch_shop(cfg, timeout=20, today=None, max_products=30):
             doc = _fetch(u, timeout, cfg.get("encoding"))
         except Exception:  # noqa: BLE001 - einzelne Produktseite darf ausfallen
             return None
-        return parse_product(doc, u, name, currency, today)
+        return parse_product(doc, u, name, currency, today, category, kind)
 
     offers = []
     with _cf.ThreadPoolExecutor(max_workers=8) as ex:

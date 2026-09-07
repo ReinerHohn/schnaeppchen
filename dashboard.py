@@ -51,9 +51,13 @@ def _card(a, cur):
             f'{sw["icon"]} {_esc(sw["name"])}</span>'
         )
     group = a.get("group") or ""
-    is_shop = str(group).startswith("feinkost:")
-    if is_shop:  # 'feinkost:bosfood' -> '🦞 bosfood'
+    is_food = str(group).startswith("feinkost:")
+    is_event = str(group).startswith("event:")
+    is_shop = is_food or is_event
+    if is_food:  # 'feinkost:bosfood' -> '🦞 bosfood'
         badges.append(f'<span class="b shop">\U0001F99E {_esc(group.split(":", 1)[1])}</span>')
+    elif is_event:  # 'event:mydays' -> '🍽️ mydays'
+        badges.append(f'<span class="b event">\U0001F37D️ {_esc(group.split(":", 1)[1])}</span>')
     elif group and group not in ("custom", "hot", "new", "trending"):
         badges.append(f'<span class="b grp">{_esc(group)}</span>')
 
@@ -76,7 +80,8 @@ def _card(a, cur):
         f'data-weekday="{1 if a.get("is_weekday_deal") else 0}" '
         f'data-sweet="{1 if a.get("sweetspots") else 0}" '
         f'data-deal="{1 if a.get("is_schnaeppchen") else 0}" '
-        f'data-shop="{1 if is_shop else 0}"'
+        f'data-shop="{1 if is_food else 0}" '
+        f'data-event="{1 if is_event else 0}"'
     )
     return (
         f'<a class="card" href="{url}" target="_blank" rel="noopener" {data}>'
@@ -198,6 +203,7 @@ _TEMPLATE = """<!DOCTYPE html>
   .b.hot {{ background:var(--hot); color:#fff; }}
   .b.grp {{ background:#212a24; color:#7bd88f; }}
   .b.shop {{ background:#3a2618; color:#ffa94d; }}
+  .b.event {{ background:#2a1f3a; color:#d0a3ff; }}
   .b.sweet {{ background:#2a2140; color:#b37feb; cursor:help; }}
   .title {{ font-size:14px; line-height:1.3; font-weight:600; }}
   .price {{ font-size:19px; font-weight:700; color:var(--accent); margin-top:auto; }}
@@ -227,6 +233,7 @@ _TEMPLATE = """<!DOCTYPE html>
     <button data-f="sweet">\U0001F4A1 Sweet Spots</button>
     <button data-f="deal">\U0001F525 Nur Schnäppchen</button>
     <button data-f="shop">\U0001F99E Delikatessen-Shops</button>
+    <button data-f="event">\U0001F37D️ Genuss-Events</button>
     <button data-f="weekday">\U0001F4C5 Wochentags billiger</button>
   </div>
 

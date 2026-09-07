@@ -54,6 +54,13 @@ class TestShopParse(unittest.TestCase):
     def test_parse_product_needs_price(self):
         self.assertIsNone(parse_product("<h1>Ohne Preis</h1>", "u", "s"))
 
+    def test_parse_product_event_kind(self):
+        # Genuss-Event-Shop: category='Event', group-Präfix 'event:'.
+        o = parse_product(JTL_PRODUCT_HTML, "https://x/kochkurs", "mydays",
+                          category="Event", kind="event")
+        self.assertEqual(o["category"], "Event")
+        self.assertEqual(o["group"], "event:mydays")
+
     def test_sitemap_filters_seafood(self):
         urls = parse_sitemap(SITEMAP)
         self.assertIn("https://www.gourmetfleisch.de/seafood/hummerschwanzfleisch-sous-vide.html", urls)

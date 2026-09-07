@@ -53,12 +53,18 @@ Drei Arten von Quellen:
   nach der Zahl (`47,70 EUR`, `€ 26,97`) und Sitemap-Indizes (inkl. `.gz`).
   Mit dabei: **gourmetfleisch.de** (Shopware), **viani.de**, **bosfood.de** (JTL,
   Kaviar/Trüffel), **gustini.de** & **eataly.net** (ital. Delikatessen). Weitere
-  Shops per Eintrag `{name, sitemap, currency, encoding, match, exclude, require}`
-  – kein Code nötig:
+  Shops per Eintrag `{name, sitemap, currency, encoding, match, exclude, require,
+  kind, category}` – kein Code nötig:
   - `match` — URL muss einen dieser Substrings enthalten (Delikatessen-Filter).
   - `exclude` — URL darf keinen enthalten (Bücher, Blog, Non-Food …).
   - `require` — URL *muss* diesen Substring enthalten (z.B. `/produkt/`, um
     Kategorie-/Landing-Seiten mit Fehlpreisen auszublenden).
+  - `kind`/`category` — `event`/`Event` macht aus dem Shop eine **Genuss-Event**-
+    Quelle (Gruppe `event:<name>` statt `feinkost:<name>`).
+- **Genuss-Event-Shops** (gleicher Scraper, `kind:"event"`): buchbare Erlebnisse –
+  Kochkurse, Wein-/Whisky-/Gin-Verkostungen, Menü-/Dinner-Abende. Standardmäßig
+  **mydays.de** (`require:"/p/"` = nur echte Event-Seiten). Im Dashboard eigener
+  Filter **🍽️ Genuss-Events**.
 
 **Feeds** (`config.json → settings.feeds`) — Presets in `mydealz.py → FEEDS`:
 

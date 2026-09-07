@@ -170,8 +170,9 @@ def analyze_offer(offer, history, interests, settings, sweetspots=None):
     )
     hit_exclude = next((kw for kw in exclude if keyword_matches(kw, ex_text)), None)
     is_excluded = hit_exclude is not None
-    # Produkte aus bewusst konfigurierten Feinkost-Shops gelten als relevant.
-    is_shop = str(offer.get("group", "")).startswith("feinkost:")
+    # Produkte aus bewusst konfigurierten Shops (Feinkost ODER Genuss-Events)
+    # gelten als relevant.
+    is_shop = str(offer.get("group", "")).startswith(("feinkost:", "event:"))
     # Relevant = Interesse ODER Sweet-Spot ODER Feinkost-Shop, und nicht geblockt.
     is_relevant = (bool(interest) or bool(sweet) or is_shop) and not is_excluded
 
